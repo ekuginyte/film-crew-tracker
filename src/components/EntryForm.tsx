@@ -111,7 +111,7 @@ export const EntryForm = ({ onSubmit }: Props) => {
       <div className="col-span-2 flex gap-3 pt-2">
         <Button type="submit" variant="volt" size="xl" className="flex-1">CAPTURE ENTRY</Button>
         <Button type="reset" variant="outlineGlass" size="xl"
-          onClick={() => { setLocation(""); setCall("07:30"); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); }}>
+          onClick={() => { setLocation(""); setCall("07:30"); setActualStart(""); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); }}>
           Reset
         </Button>
       </div>
