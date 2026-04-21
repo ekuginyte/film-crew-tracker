@@ -14,11 +14,13 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
   const [dayType, setDayType] = useState<DayType>(entry.dayType ?? "shoot");
   const [location, setLocation] = useState(entry.location ?? "");
   const [call, setCall] = useState(entry.call);
+  const [actualStart, setActualStart] = useState(entry.actualStart ?? "");
   const [wrap, setWrap] = useState(entry.wrap);
   const [mealMinutes, setMeal] = useState(entry.mealMinutes);
   const [travelMinutes, setTravel] = useState(entry.travelMinutes);
   const [isNight, setNight] = useState(!!entry.isNight);
   const [perDiem, setPerDiem] = useState(!!entry.perDiem);
+  const [consecutiveDay, setConsecutiveDay] = useState<number>(entry.consecutiveDay ?? 1);
 
   // Reset state if a different entry becomes active.
   useEffect(() => {
@@ -26,17 +28,20 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
     setDayType(entry.dayType ?? "shoot");
     setLocation(entry.location ?? "");
     setCall(entry.call);
+    setActualStart(entry.actualStart ?? "");
     setWrap(entry.wrap);
     setMeal(entry.mealMinutes);
     setTravel(entry.travelMinutes);
     setNight(!!entry.isNight);
     setPerDiem(!!entry.perDiem);
+    setConsecutiveDay(entry.consecutiveDay ?? 1);
   }, [entry.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^\d{2}:\d{2}$/.test(call) || !/^\d{2}:\d{2}$/.test(wrap)) return;
-    onSave({ date, dayType, location: location.trim(), call, wrap, mealMinutes, travelMinutes, isNight, perDiem });
+    if (actualStart && !/^\d{2}:\d{2}$/.test(actualStart)) return;
+    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, consecutiveDay });
   };
 
   return (
