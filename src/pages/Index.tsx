@@ -4,12 +4,14 @@ import { RecentLog } from "@/components/RecentLog";
 import { Summary } from "@/components/Summary";
 import { RatesPanel } from "@/components/RatesPanel";
 import { WeekCalendar } from "@/components/WeekCalendar";
+import { MonthCalendar } from "@/components/MonthCalendar";
 import { ProjectSwitcher } from "@/components/ProjectSwitcher";
 import { useProjects } from "@/hooks/useProjects";
 import { Button } from "@/components/ui/button";
 import { CalendarRange, ClipboardList, Settings2, X } from "lucide-react";
 
 type View = "capture" | "calendar";
+type CalView = "week" | "month";
 
 const Index = () => {
   const {
@@ -18,6 +20,7 @@ const Index = () => {
   } = useProjects();
   const [showRates, setShowRates] = useState(false);
   const [view, setView] = useState<View>("capture");
+  const [calView, setCalView] = useState<CalView>("week");
 
   return (
     <div className="min-h-dvh bg-obsidian text-muted-foreground antialiased p-6 lg:p-12">
@@ -89,13 +92,22 @@ const Index = () => {
               </>
             ) : (
               <>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
                   <h2 className="text-lg font-medium text-foreground">Production Calendar</h2>
-                  <span className="text-xs font-mono text-muted-foreground bg-carbon px-3 py-1 rounded-full border border-border">
-                    Week View
-                  </span>
+                  <div className="flex bg-carbon border border-border rounded-lg p-1 gap-1">
+                    <button type="button" onClick={() => setCalView("week")} aria-pressed={calView === "week"}
+                      className={`px-3 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-widest transition-colors ${
+                        calView === "week" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                      }`}>Week</button>
+                    <button type="button" onClick={() => setCalView("month")} aria-pressed={calView === "month"}
+                      className={`px-3 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-widest transition-colors ${
+                        calView === "month" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                      }`}>Month</button>
+                  </div>
                 </div>
-                <WeekCalendar entries={entries} rates={rates} />
+                {calView === "week"
+                  ? <WeekCalendar entries={entries} rates={rates} />
+                  : <MonthCalendar entries={entries} rates={rates} />}
               </>
             )}
           </section>
