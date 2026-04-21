@@ -1,0 +1,83 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import type { DayEntry } from "@/lib/calc";
+
+type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void };
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+export const EntryForm = ({ onSubmit }: Props) => {
+  const [date, setDate] = useState(today());
+  const [location, setLocation] = useState("");
+  const [call, setCall] = useState("07:30");
+  const [wrap, setWrap] = useState("20:00");
+  const [mealMinutes, setMeal] = useState(60);
+  const [travelMinutes, setTravel] = useState(0);
+  const [isNight, setNight] = useState(false);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!/^\d{2}:\d{2}$/.test(call) || !/^\d{2}:\d{2}$/.test(wrap)) {
+      toast({ title: "Invalid time", description: "Use HH:MM format." });
+      return;
+    }
+    onSubmit({ date, location: location.trim(), call, wrap, mealMinutes, travelMinutes, isNight });
+    toast({ title: "Entry captured", description: `${date} · ${call}–${wrap}` });
+  };
+
+  return (
+    <form onSubmit={submit} className="grid grid-cols-2 gap-x-6 gap-y-6 relative z-10">
+      <Field label="Date of Session" className="col-span-2 md:col-span-1">
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
+          className="w-full bg-obsidian border border-border rounded-lg px-4 py-3 text-foreground font-mono focus:outline-none focus:border-primary/60 transition-colors" />
+      </Field>
+      <Field label="Unit Location" className="col-span-2 md:col-span-1">
+        <input value={location} onChange={(e) => setLocation(e.target.value)} maxLength={80}
+          placeholder="Shepperton Studios, Stage 4"
+          className="w-full bg-obsidian border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-primary/60 transition-colors" />
+      </Field>
+
+      <Field label="Call Time">
+        <input value={call} onChange={(e) => setCall(e.target.value)} placeholder="07:30"
+          className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-accent/60" />
+      </Field>
+      <Field label="Wrap Time">
+        <input value={wrap} onChange={(e) => setWrap(e.target.value)} placeholder="20:45"
+          className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-ruby/60" />
+      </Field>
+
+      <Field label="Meal Break (mins)">
+        <input type="number" min={0} max={240} value={mealMinutes}
+          onChange={(e) => setMeal(Number(e.target.value) || 0)}
+          className="w-full bg-obsidian/50 border border-border rounded-lg px-4 py-3 text-lg text-foreground font-mono tabular-nums focus:outline-none focus:border-primary/60" />
+      </Field>
+      <Field label="Travel (mins)">
+        <input type="number" min={0} max={600} value={travelMinutes}
+          onChange={(e) => setTravel(Number(e.target.value) || 0)}
+          className="w-full bg-obsidian/50 border border-border rounded-lg px-4 py-3 text-lg text-foreground font-mono tabular-nums focus:outline-none focus:border-primary/60" />
+      </Field>
+
+      <label className="col-span-2 flex items-center gap-3 cursor-pointer select-none">
+        <input type="checkbox" checked={isNight} onChange={(e) => setNight(e.target.checked)}
+          className="size-4 accent-[hsl(var(--accent))]" />
+        <span className="text-sm text-muted-foreground">Night shoot — apply night premium</span>
+      </label>
+
+      <div className="col-span-2 flex gap-3 pt-2">
+        <Button type="submit" variant="volt" size="xl" className="flex-1">CAPTURE ENTRY</Button>
+        <Button type="reset" variant="outlineGlass" size="xl"
+          onClick={() => { setLocation(""); setCall("07:30"); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); }}>
+          Reset
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+const Field = ({ label, children, className = "" }: { label: string; children: React.ReactNode; className?: string }) => (
+  <div className={`space-y-2 ${className}`}>
+    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">{label}</label>
+    {children}
+  </div>
+);
