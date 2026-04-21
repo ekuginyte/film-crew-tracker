@@ -97,6 +97,30 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
         <span className="text-xs text-foreground">Per diem</span>
       </label>
 
+      <Field label="Day in week (1–7)" className="col-span-2">
+        <div className="flex gap-1">
+          {[1,2,3,4,5,6,7].map((n) => {
+            const active = n === consecutiveDay;
+            const tone = n >= 7 ? "ruby" : n === 6 ? "accent" : "primary";
+            return (
+              <button key={n} type="button" onClick={() => setConsecutiveDay(n)} aria-pressed={active}
+                className={`flex-1 py-1.5 rounded-md text-xs font-mono border transition-colors ${
+                  active
+                    ? tone === "ruby"
+                      ? "bg-ruby text-background border-ruby"
+                      : tone === "accent"
+                      ? "bg-accent text-background border-accent"
+                      : "bg-primary text-primary-foreground border-primary"
+                    : "bg-obsidian text-muted-foreground border-border hover:text-foreground"
+                }`}>
+                {n}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono mt-1">6th day = 1.5×, 7th day = 2× (BECTU)</p>
+      </Field>
+
       <div className="col-span-2 flex gap-2 pt-1">
         <Button type="submit" variant="volt" size="sm" className="flex-1">Save changes</Button>
         <Button type="button" variant="outlineGlass" size="sm" onClick={onCancel}>Cancel</Button>
