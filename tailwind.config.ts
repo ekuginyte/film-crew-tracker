@@ -47,6 +47,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        obsidian: "hsl(var(--obsidian))",
+        carbon: "hsl(var(--carbon))",
+        "slate-glass": "hsl(var(--slate-glass))",
+        ruby: {
+          DEFAULT: "hsl(var(--ruby))",
+          foreground: "hsl(var(--ruby-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
