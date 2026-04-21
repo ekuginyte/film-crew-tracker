@@ -27,6 +27,7 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
       <div className="flex gap-1 bg-obsidian border border-border rounded-lg p-1">
         <TabButton active={tab === "rates"} onClick={() => setTab("rates")}>Rates</TabButton>
         <TabButton active={tab === "dayTypes"} onClick={() => setTab("dayTypes")}>Day Types</TabButton>
+        <TabButton active={tab === "bectu"} onClick={() => setTab("bectu")}>BECTU</TabButton>
       </div>
 
       {tab === "rates" ? (
