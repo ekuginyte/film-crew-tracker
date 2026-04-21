@@ -17,7 +17,15 @@ function load<T>(key: string, fallback: T): T {
 
 export function useEntries() {
   const [entries, setEntries] = useState<DayEntry[]>(() => load(ENTRIES_KEY, []));
-  const [rates, setRates] = useState<RateConfig>(() => load(RATES_KEY, DEFAULT_RATES));
+  const [rates, setRates] = useState<RateConfig>(() => {
+    const stored = load<Partial<RateConfig>>(RATES_KEY, {});
+    // Merge with defaults so older saves get new fields (perDiem, dayTypeRates).
+    return {
+      ...DEFAULT_RATES,
+      ...stored,
+      dayTypeRates: { ...DEFAULT_RATES.dayTypeRates, ...(stored.dayTypeRates || {}) },
+    };
+  });
   const [project, setProject] = useState<string>(() => load(PROJECT_KEY, "Untitled Production"));
 
   useEffect(() => { localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries)); }, [entries]);

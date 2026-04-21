@@ -17,6 +17,7 @@ export const EntryForm = ({ onSubmit }: Props) => {
   const [mealMinutes, setMeal] = useState(60);
   const [travelMinutes, setTravel] = useState(0);
   const [isNight, setNight] = useState(false);
+  const [perDiem, setPerDiem] = useState(false);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +25,7 @@ export const EntryForm = ({ onSubmit }: Props) => {
       toast({ title: "Invalid time", description: "Use HH:MM format." });
       return;
     }
-    onSubmit({ date, dayType, location: location.trim(), call, wrap, mealMinutes, travelMinutes, isNight });
+    onSubmit({ date, dayType, location: location.trim(), call, wrap, mealMinutes, travelMinutes, isNight, perDiem });
     toast({ title: "Entry captured", description: `${DAY_TYPE_LABELS[dayType]} · ${date} · ${call}–${wrap}` });
   };
 
@@ -83,16 +84,23 @@ export const EntryForm = ({ onSubmit }: Props) => {
           className="w-full bg-obsidian/50 border border-border rounded-lg px-4 py-3 text-lg text-foreground font-mono tabular-nums focus:outline-none focus:border-primary/60" />
       </Field>
 
-      <label className="col-span-2 flex items-center gap-3 cursor-pointer select-none">
-        <input type="checkbox" checked={isNight} onChange={(e) => setNight(e.target.checked)}
-          className="size-4 accent-[hsl(var(--accent))]" />
-        <span className="text-sm text-muted-foreground">Night shoot — apply night premium</span>
-      </label>
+      <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label className="flex items-center gap-3 cursor-pointer select-none bg-obsidian/60 border border-border rounded-lg px-4 py-3 hover:border-primary/40 transition-colors">
+          <input type="checkbox" checked={isNight} onChange={(e) => setNight(e.target.checked)}
+            className="size-4 accent-[hsl(var(--accent))]" />
+          <span className="text-sm text-foreground">Night shoot <span className="text-muted-foreground">— premium</span></span>
+        </label>
+        <label className="flex items-center gap-3 cursor-pointer select-none bg-obsidian/60 border border-border rounded-lg px-4 py-3 hover:border-primary/40 transition-colors">
+          <input type="checkbox" checked={perDiem} onChange={(e) => setPerDiem(e.target.checked)}
+            className="size-4 accent-[hsl(var(--primary))]" />
+          <span className="text-sm text-foreground">Per diem <span className="text-muted-foreground">— claim daily allowance</span></span>
+        </label>
+      </div>
 
       <div className="col-span-2 flex gap-3 pt-2">
         <Button type="submit" variant="volt" size="xl" className="flex-1">CAPTURE ENTRY</Button>
         <Button type="reset" variant="outlineGlass" size="xl"
-          onClick={() => { setLocation(""); setCall("07:30"); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); }}>
+          onClick={() => { setLocation(""); setCall("07:30"); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); }}>
           Reset
         </Button>
       </div>

@@ -23,7 +23,21 @@ export type DayEntry = {
   mealMinutes: number;    // unpaid meal break
   travelMinutes: number;
   isNight?: boolean;      // night-shoot flag → night premium
+  perDiem?: boolean;      // claim per-diem for this day
   notes?: string;
+};
+
+// Multiplier applied to the day's pay (basic + OT) per day type.
+// 1.0 = full rate, 0.5 = half rate, 0 = unpaid hold, etc.
+export type DayTypeRates = Record<DayType, number>;
+
+export const DEFAULT_DAY_TYPE_RATES: DayTypeRates = {
+  shoot: 1,
+  travel: 0.5,
+  prep: 1,
+  rig: 1,
+  rehearsal: 0.75,
+  hold: 0.5,
 };
 
 export type RateConfig = {
@@ -33,8 +47,10 @@ export type RateConfig = {
   ot15Hours: number;        // hours after basic that count at 1.5x, e.g. 2
   // remaining hours count at 2x
   nightPremium: number;     // £ flat per night-shoot day
+  perDiem: number;          // £ per-diem amount per claimed day
   vatRate: number;          // 0.20
   kitRentalPerDay?: number; // optional
+  dayTypeRates: DayTypeRates;
 };
 
 export const DEFAULT_RATES: RateConfig = {
@@ -43,8 +59,10 @@ export const DEFAULT_RATES: RateConfig = {
   hourlyRate: 35,
   ot15Hours: 2,
   nightPremium: 100,
+  perDiem: 45,
   vatRate: 0.2,
   kitRentalPerDay: 0,
+  dayTypeRates: DEFAULT_DAY_TYPE_RATES,
 };
 
 const toMinutes = (hhmm: string) => {
@@ -72,7 +90,9 @@ export type DayBreakdown = {
   ot2Pay: number;
   travelPay: number;
   nightPay: number;
+  perDiemPay: number;
   kitRental: number;
+  dayTypeMultiplier: number;
   total: number;
 };
 
@@ -84,18 +104,24 @@ export function breakdown(entry: DayEntry, rates: RateConfig): DayBreakdown {
   const ot2 = Math.max(0, overtime - rates.ot15Hours);
   const travelHours = (entry.travelMinutes || 0) / 60;
 
+  const dayTypeMultiplier = rates.dayTypeRates?.[entry.dayType] ?? 1;
+
   // Day rate (if set) replaces hourly basic pay; pro-rated when worked < basic.
-  const basicPay = rates.dayRate > 0
+  const rawBasicPay = rates.dayRate > 0
     ? rates.dayRate * (rates.basicHours > 0 ? basic / rates.basicHours : 1)
     : basic * rates.hourlyRate;
-  const ot15Pay = ot15 * rates.hourlyRate * 1.5;
-  const ot2Pay = ot2 * rates.hourlyRate * 2;
-  const travelPay = travelHours * rates.hourlyRate;
+
+  // Day-type multiplier applies to basic + OT + travel pay (not per-diem / kit / night premium).
+  const basicPay = rawBasicPay * dayTypeMultiplier;
+  const ot15Pay = ot15 * rates.hourlyRate * 1.5 * dayTypeMultiplier;
+  const ot2Pay = ot2 * rates.hourlyRate * 2 * dayTypeMultiplier;
+  const travelPay = travelHours * rates.hourlyRate * dayTypeMultiplier;
   const nightPay = entry.isNight ? rates.nightPremium : 0;
+  const perDiemPay = entry.perDiem ? rates.perDiem : 0;
   const kitRental = rates.kitRentalPerDay || 0;
 
-  const total = basicPay + ot15Pay + ot2Pay + travelPay + nightPay + kitRental;
-  return { worked, basic, ot15, ot2, travelHours, basicPay, ot15Pay, ot2Pay, travelPay, nightPay, kitRental, total };
+  const total = basicPay + ot15Pay + ot2Pay + travelPay + nightPay + perDiemPay + kitRental;
+  return { worked, basic, ot15, ot2, travelHours, basicPay, ot15Pay, ot2Pay, travelPay, nightPay, perDiemPay, kitRental, dayTypeMultiplier, total };
 }
 
 export type Totals = {
@@ -104,6 +130,8 @@ export type Totals = {
   ot15Hours: number;
   ot2Hours: number;
   travelHours: number;
+  perDiems: number;
+  perDiemTotal: number;
   subtotal: number;
   vat: number;
   grand: number;
@@ -113,6 +141,7 @@ export function totals(entries: DayEntry[], rates: RateConfig): Totals {
   const acc: Totals = {
     days: entries.length,
     basicHours: 0, ot15Hours: 0, ot2Hours: 0, travelHours: 0,
+    perDiems: 0, perDiemTotal: 0,
     subtotal: 0, vat: 0, grand: 0,
   };
   for (const e of entries) {
@@ -122,6 +151,10 @@ export function totals(entries: DayEntry[], rates: RateConfig): Totals {
     acc.ot2Hours += b.ot2;
     acc.travelHours += b.travelHours;
     acc.subtotal += b.total;
+    if (e.perDiem) {
+      acc.perDiems += 1;
+      acc.perDiemTotal += b.perDiemPay;
+    }
   }
   acc.vat = acc.subtotal * rates.vatRate;
   acc.grand = acc.subtotal + acc.vat;
