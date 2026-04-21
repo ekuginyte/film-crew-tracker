@@ -98,6 +98,10 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
         <input type="checkbox" checked={perDiem} onChange={(e) => setPerDiem(e.target.checked)} className="size-4 accent-[hsl(var(--primary))]" />
         <span className="text-xs text-foreground">Per diem</span>
       </label>
+      <label className="col-span-2 flex items-center gap-2 cursor-pointer select-none bg-obsidian/60 border border-border rounded-md px-3 py-2">
+        <input type="checkbox" checked={shootingOT} onChange={(e) => setShootingOT(e.target.checked)} className="size-4 accent-[hsl(var(--ruby))]" />
+        <span className="text-xs text-foreground">Shooting OT (first window after basic at 2×)</span>
+      </label>
 
       <Field label="Day in week (1–7)" className="col-span-2">
         <div className="flex gap-1">
