@@ -69,11 +69,17 @@ export const EntryForm = ({ onSubmit }: Props) => {
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-primary/60 transition-colors" />
       </Field>
 
-      <Field label="Call Time">
+      <Field label="Call Time" className="col-span-2 md:col-span-1">
         <input value={call} onChange={(e) => setCall(e.target.value)} placeholder="07:30"
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-accent/60" />
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">From call sheet</p>
       </Field>
-      <Field label="Wrap Time">
+      <Field label="Actual Start" className="col-span-2 md:col-span-1">
+        <input value={actualStart} onChange={(e) => setActualStart(e.target.value)} placeholder="06:45"
+          className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-primary/60" />
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">If pre-call (else blank)</p>
+      </Field>
+      <Field label="Wrap Time" className="col-span-2 md:col-span-1">
         <input value={wrap} onChange={(e) => setWrap(e.target.value)} placeholder="20:45"
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-ruby/60" />
       </Field>
