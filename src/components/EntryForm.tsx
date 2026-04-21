@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import type { DayEntry } from "@/lib/calc";
+import type { DayEntry, DayType } from "@/lib/calc";
+import { DAY_TYPES, DAY_TYPE_LABELS } from "@/lib/calc";
 
 type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void };
 
@@ -9,6 +10,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 export const EntryForm = ({ onSubmit }: Props) => {
   const [date, setDate] = useState(today());
+  const [dayType, setDayType] = useState<DayType>("shoot");
   const [location, setLocation] = useState("");
   const [call, setCall] = useState("07:30");
   const [wrap, setWrap] = useState("20:00");
@@ -22,8 +24,8 @@ export const EntryForm = ({ onSubmit }: Props) => {
       toast({ title: "Invalid time", description: "Use HH:MM format." });
       return;
     }
-    onSubmit({ date, location: location.trim(), call, wrap, mealMinutes, travelMinutes, isNight });
-    toast({ title: "Entry captured", description: `${date} · ${call}–${wrap}` });
+    onSubmit({ date, dayType, location: location.trim(), call, wrap, mealMinutes, travelMinutes, isNight });
+    toast({ title: "Entry captured", description: `${DAY_TYPE_LABELS[dayType]} · ${date} · ${call}–${wrap}` });
   };
 
   return (
