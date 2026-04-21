@@ -30,6 +30,29 @@ export const EntryForm = ({ onSubmit }: Props) => {
 
   return (
     <form onSubmit={submit} className="grid grid-cols-2 gap-x-6 gap-y-6 relative z-10">
+      <Field label="Day Type" className="col-span-2">
+        <div className="flex flex-wrap gap-2">
+          {DAY_TYPES.map((t) => {
+            const active = t === dayType;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setDayType(t)}
+                aria-pressed={active}
+                className={`px-3 py-2 rounded-lg text-xs font-semibold uppercase tracking-widest border transition-colors ${
+                  active
+                    ? "bg-primary text-primary-foreground border-primary shadow-[0_0_16px_hsl(var(--primary)/0.35)]"
+                    : "bg-obsidian text-muted-foreground border-border hover:text-foreground hover:border-primary/40"
+                }`}
+              >
+                {DAY_TYPE_LABELS[t]}
+              </button>
+            );
+          })}
+        </div>
+      </Field>
+
       <Field label="Date of Session" className="col-span-2 md:col-span-1">
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-3 text-foreground font-mono focus:outline-none focus:border-primary/60 transition-colors" />
