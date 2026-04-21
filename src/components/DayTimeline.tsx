@@ -118,8 +118,7 @@ const fmtClock = (startMins: number, offsetMin: number) => {
 };
 
 export const DayTimeline = ({ entry, rates }: Props) => {
-  const callMin = toMinutes(entry.call);
-  const { segments, totalMin } = buildSegments(entry, rates);
+  const { segments, totalMin, startMin } = buildSegments(entry, rates);
   const b = breakdown(entry, rates);
 
   if (totalMin <= 0) {
@@ -128,13 +127,17 @@ export const DayTimeline = ({ entry, rates }: Props) => {
 
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((p) => ({
     pct: p * 100,
-    label: fmtClock(callMin, Math.round(totalMin * p)),
+    label: fmtClock(startMin, Math.round(totalMin * p)),
   }));
+
+  const startLabel = entry.actualStart && entry.actualStart !== entry.call
+    ? `${entry.actualStart} start (call ${entry.call})`
+    : `${entry.call} call`;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
-        <span>{entry.call} call</span>
+        <span>{startLabel}</span>
         <span>{fmtHours(workedHours(entry))} h worked · {(totalMin / 60).toFixed(2)} h elapsed</span>
         <span>{entry.wrap} wrap</span>
       </div>
@@ -142,7 +145,7 @@ export const DayTimeline = ({ entry, rates }: Props) => {
       <div
         className="relative h-9 w-full rounded-md overflow-hidden border border-border bg-obsidian"
         role="img"
-        aria-label={`Timeline from ${entry.call} to ${entry.wrap}`}
+        aria-label={`Timeline from ${entry.actualStart || entry.call} to ${entry.wrap}`}
       >
         {segments.map((s) => {
           const left = (s.startMin / totalMin) * 100;
@@ -152,7 +155,7 @@ export const DayTimeline = ({ entry, rates }: Props) => {
               key={s.key}
               className={`absolute top-0 bottom-0 ${s.className} transition-colors`}
               style={{ left: `${left}%`, width: `${width}%` }}
-              title={`${s.label} · ${fmtClock(callMin, s.startMin)}–${fmtClock(callMin, s.endMin)}`}
+              title={`${s.label} · ${fmtClock(startMin, s.startMin)}–${fmtClock(startMin, s.endMin)}`}
             />
           );
         })}
@@ -170,6 +173,7 @@ export const DayTimeline = ({ entry, rates }: Props) => {
       </div>
 
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-[10px] uppercase tracking-widest text-muted-foreground font-mono pt-2">
+        {b.preCall > 0 && <Legend swatch="bg-accent/50" label={`Pre-call ${fmtHours(b.preCall)}h`} />}
         <Legend swatch="bg-primary" label={`Basic ${fmtHours(b.basic)}h`} />
         {b.ot15 > 0 && <Legend swatch="bg-accent" label={`OT 1.5x ${fmtHours(b.ot15)}h`} />}
         {b.ot2 > 0 && <Legend swatch="bg-ruby" label={`OT 2x ${fmtHours(b.ot2)}h`} />}
