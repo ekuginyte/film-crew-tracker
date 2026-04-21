@@ -78,9 +78,11 @@ export const RecentLog = ({ entries, rates, onRemove, onUpdate }: Props) => {
                   <Stat label="OT 1.5x" value={fmtGBP(b.ot15Pay)} tone={b.ot15Pay ? "primary" : undefined} />
                   <Stat label="OT 2x" value={fmtGBP(b.ot2Pay)} tone={b.ot2Pay ? "ruby" : undefined} />
                   <Stat label="Travel" value={fmtGBP(b.travelPay)} />
+                  {b.preCallPay > 0 && <Stat label="Pre-call" value={fmtGBP(b.preCallPay)} tone="primary" />}
                   {b.nightPay > 0 && <Stat label="Night" value={fmtGBP(b.nightPay)} tone="primary" />}
                   {b.perDiemPay > 0 && <Stat label="Per diem" value={fmtGBP(b.perDiemPay)} tone="primary" />}
                   {b.kitRental > 0 && <Stat label="Kit" value={fmtGBP(b.kitRental)} />}
+                  {b.consecutiveMultiplier !== 1 && <Stat label={`Day ${e.consecutiveDay}× `} value={`${b.consecutiveMultiplier.toFixed(2)}×`} tone="ruby" />}
                   <Stat label="Day total" value={fmtGBP(b.total)} tone="primary" />
                 </div>
 
