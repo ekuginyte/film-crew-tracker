@@ -22,16 +22,21 @@ type Segment = {
  * Order of layout: pre-meal worked → meal break (unpaid) → post-meal worked.
  * Worked time is split into Basic → OT 1.5x → OT 2x in sequence.
  */
-function buildSegments(entry: DayEntry, rates: RateConfig): { segments: Segment[]; totalMin: number } {
-  const start = toMinutes(entry.call);
+function buildSegments(entry: DayEntry, rates: RateConfig): { segments: Segment[]; totalMin: number; startMin: number } {
+  const callMin = toMinutes(entry.call);
+  const hasPreCall = !!entry.actualStart && /^\d{2}:\d{2}$/.test(entry.actualStart) && toMinutes(entry.actualStart) < callMin;
+  const startMin = hasPreCall ? toMinutes(entry.actualStart!) : callMin;
   let end = toMinutes(entry.wrap);
-  if (end <= start) end += 24 * 60;
-  const totalMin = Math.max(0, end - start);
+  if (end <= startMin) end += 24 * 60;
+  const totalMin = Math.max(0, end - startMin);
 
-  // Place a single meal block roughly in the middle if mealMinutes > 0.
-  const meal = Math.min(entry.mealMinutes || 0, totalMin);
-  const workedTotal = Math.max(0, totalMin - meal);
-  const mealStart = Math.max(0, Math.round((totalMin - meal) / 2));
+  const preCallMin = hasPreCall ? callMin - startMin : 0;
+
+  // Place a single meal block roughly in the middle of the post-call window.
+  const meal = Math.min(entry.mealMinutes || 0, totalMin - preCallMin);
+  const postCallTotal = totalMin - preCallMin;
+  const workedTotal = Math.max(0, postCallTotal - meal);
+  const mealStart = preCallMin + Math.max(0, Math.round((postCallTotal - meal) / 2));
   const mealEnd = mealStart + meal;
 
   // Split worked minutes into basic / ot1.5 / ot2 in order.
@@ -42,7 +47,6 @@ function buildSegments(entry: DayEntry, rates: RateConfig): { segments: Segment[
   const ot15Min = Math.min(Math.max(0, workedTotal - basicCap), ot15Cap);
   const ot2Min = Math.max(0, workedTotal - basicCap - ot15Cap);
 
-  // Walk through timeline, emitting worked chunks split by the meal break.
   const workedBuckets = [
     { name: "Basic", remaining: basicMin, className: "bg-primary/80", swatch: "bg-primary" },
     { name: "OT 1.5x", remaining: ot15Min, className: "bg-accent/80", swatch: "bg-accent" },
@@ -52,6 +56,19 @@ function buildSegments(entry: DayEntry, rates: RateConfig): { segments: Segment[
   const segments: Segment[] = [];
   let cursor = 0;
   let bIdx = 0;
+
+  // Pre-call segment first (rendered as a striped/highlighted block).
+  if (preCallMin > 0) {
+    segments.push({
+      key: `precall-0`,
+      label: "Pre-call",
+      startMin: 0,
+      endMin: preCallMin,
+      className: "bg-accent/40 border-r border-accent/60",
+      swatch: "bg-accent/50",
+    });
+    cursor = preCallMin;
+  }
 
   const consumeWorked = (untilMin: number) => {
     while (cursor < untilMin && bIdx < workedBuckets.length) {
@@ -90,7 +107,7 @@ function buildSegments(entry: DayEntry, rates: RateConfig): { segments: Segment[
   }
   consumeWorked(totalMin);
 
-  return { segments, totalMin };
+  return { segments, totalMin, startMin };
 }
 
 const fmtClock = (startMins: number, offsetMin: number) => {
