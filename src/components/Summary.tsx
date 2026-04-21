@@ -11,13 +11,14 @@ const exportInvoiceCSV = (entries: DayEntry[], rates: RateConfig, project: strin
     ["SlateTrack Invoice", project],
     ["Generated", new Date().toLocaleString("en-GB")],
     [],
-    ["Date", "Location", "Call", "Wrap", "Meal (m)", "Travel (m)", "Night"],
-    ...entries.map((e) => [e.date, e.location ?? "", e.call, e.wrap, e.mealMinutes, e.travelMinutes, e.isNight ? "Y" : ""]),
+    ["Date", "Day Type", "Location", "Call", "Wrap", "Meal (m)", "Travel (m)", "Night", "Per Diem"],
+    ...entries.map((e) => [e.date, e.dayType ?? "shoot", e.location ?? "", e.call, e.wrap, e.mealMinutes, e.travelMinutes, e.isNight ? "Y" : "", e.perDiem ? "Y" : ""]),
     [],
     ["Basic hrs", t.basicHours.toFixed(2)],
     ["OT 1.5x hrs", t.ot15Hours.toFixed(2)],
     ["OT 2x hrs", t.ot2Hours.toFixed(2)],
     ["Travel hrs", t.travelHours.toFixed(2)],
+    [`Per diems (${t.perDiems})`, t.perDiemTotal.toFixed(2)],
     ["Subtotal", t.subtotal.toFixed(2)],
     [`VAT (${(rates.vatRate * 100).toFixed(0)}%)`, t.vat.toFixed(2)],
     ["Grand total (GBP)", t.grand.toFixed(2)],
@@ -59,6 +60,11 @@ export const Summary = ({ entries, rates, project }: Props) => {
               <p className="text-xs text-muted-foreground mt-2 font-mono">
                 + VAT {fmtGBP(t.vat)} = <span className="text-accent">{fmtGBP(t.grand)}</span>
               </p>
+              {t.perDiems > 0 && (
+                <p className="text-xs text-muted-foreground mt-1 font-mono">
+                  Includes {t.perDiems} per-diem{t.perDiems === 1 ? "" : "s"} ({fmtGBP(t.perDiemTotal)})
+                </p>
+              )}
             </div>
           </div>
 

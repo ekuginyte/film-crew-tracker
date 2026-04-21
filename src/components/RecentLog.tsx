@@ -34,6 +34,7 @@ export const RecentLog = ({ entries, rates, onRemove }: Props) => {
                 <p className="text-[10px] uppercase tracking-tighter text-muted-foreground font-mono">
                   {e.call} — {e.wrap} · {fmtHours(b.worked)}h
                   {b.ot15 + b.ot2 > 0 && <span className="text-primary"> · +{fmtHours(b.ot15 + b.ot2)} OT</span>}
+                  {e.perDiem && <span className="text-primary"> · PD</span>}
                 </p>
               </div>
             </div>
