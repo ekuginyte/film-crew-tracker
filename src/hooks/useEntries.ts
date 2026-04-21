@@ -34,9 +34,11 @@ export function useEntries() {
 
   const addEntry = (e: Omit<DayEntry, "id">) =>
     setEntries((prev) => [{ ...e, id: crypto.randomUUID() }, ...prev]);
+  const updateEntry = (id: string, patch: Partial<DayEntry>) =>
+    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
   const removeEntry = (id: string) =>
     setEntries((prev) => prev.filter((e) => e.id !== id));
   const clearAll = () => setEntries([]);
 
-  return { entries, addEntry, removeEntry, clearAll, rates, setRates, project, setProject };
+  return { entries, addEntry, updateEntry, removeEntry, clearAll, rates, setRates, project, setProject };
 }

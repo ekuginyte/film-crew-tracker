@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Settings2, X } from "lucide-react";
 
 const Index = () => {
-  const { entries, addEntry, removeEntry, rates, setRates, project, setProject } = useEntries();
+  const { entries, addEntry, updateEntry, removeEntry, rates, setRates, project, setProject } = useEntries();
   const [showRates, setShowRates] = useState(false);
 
   return (
@@ -49,7 +49,7 @@ const Index = () => {
 
             <div className="space-y-4">
               <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">Recent Captured Slates</h3>
-              <RecentLog entries={entries} rates={rates} onRemove={removeEntry} />
+              <RecentLog entries={entries} rates={rates} onRemove={removeEntry} onUpdate={updateEntry} />
             </div>
           </section>
 
