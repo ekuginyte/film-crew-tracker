@@ -20,6 +20,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
   const [travelMinutes, setTravel] = useState(entry.travelMinutes);
   const [isNight, setNight] = useState(!!entry.isNight);
   const [perDiem, setPerDiem] = useState(!!entry.perDiem);
+  const [shootingOT, setShootingOT] = useState(!!entry.shootingOT);
   const [consecutiveDay, setConsecutiveDay] = useState<number>(entry.consecutiveDay ?? 1);
 
   // Reset state if a different entry becomes active.
@@ -34,6 +35,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
     setTravel(entry.travelMinutes);
     setNight(!!entry.isNight);
     setPerDiem(!!entry.perDiem);
+    setShootingOT(!!entry.shootingOT);
     setConsecutiveDay(entry.consecutiveDay ?? 1);
   }, [entry.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -41,7 +43,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
     e.preventDefault();
     if (!/^\d{2}:\d{2}$/.test(call) || !/^\d{2}:\d{2}$/.test(wrap)) return;
     if (actualStart && !/^\d{2}:\d{2}$/.test(actualStart)) return;
-    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, consecutiveDay });
+    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, consecutiveDay });
   };
 
   return (
@@ -95,6 +97,10 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
       <label className="col-span-1 flex items-center gap-2 cursor-pointer select-none bg-obsidian/60 border border-border rounded-md px-3 py-2">
         <input type="checkbox" checked={perDiem} onChange={(e) => setPerDiem(e.target.checked)} className="size-4 accent-[hsl(var(--primary))]" />
         <span className="text-xs text-foreground">Per diem</span>
+      </label>
+      <label className="col-span-2 flex items-center gap-2 cursor-pointer select-none bg-obsidian/60 border border-border rounded-md px-3 py-2">
+        <input type="checkbox" checked={shootingOT} onChange={(e) => setShootingOT(e.target.checked)} className="size-4 accent-[hsl(var(--ruby))]" />
+        <span className="text-xs text-foreground">Shooting OT (first window after basic at 2×)</span>
       </label>
 
       <Field label="Day in week (1–7)" className="col-span-2">

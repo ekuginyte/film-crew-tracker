@@ -82,7 +82,7 @@ const Index = () => {
 
                 <div className="bg-carbon rounded-2xl p-8 border border-border shadow-2xl relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 rounded-full" aria-hidden />
-                  <EntryForm onSubmit={addEntry} />
+                  <EntryForm onSubmit={addEntry} defaultShootingOT={!!rates.shootingOTDefault} />
                 </div>
 
                 <div className="space-y-4">

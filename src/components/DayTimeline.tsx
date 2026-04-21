@@ -41,7 +41,7 @@ function buildSegments(entry: DayEntry, rates: RateConfig): { segments: Segment[
 
   // Split worked minutes into basic / shooting-OT (2×) / standard-OT (1.5×) in order.
   const basicCap = Math.round(rates.basicHours * 60);
-  const shootingOTCap = Math.round((rates.shootingOTMinutes || 0));
+  const shootingOTCap = entry.shootingOT ? Math.round((rates.shootingOTMinutes || 0)) : 0;
 
   const basicMin = Math.min(workedTotal, basicCap);
   const ot2Min = Math.min(Math.max(0, workedTotal - basicCap), shootingOTCap);
