@@ -13,6 +13,7 @@ export const EntryForm = ({ onSubmit }: Props) => {
   const [dayType, setDayType] = useState<DayType>("shoot");
   const [location, setLocation] = useState("");
   const [call, setCall] = useState("07:30");
+  const [actualStart, setActualStart] = useState("");
   const [wrap, setWrap] = useState("20:00");
   const [mealMinutes, setMeal] = useState(60);
   const [travelMinutes, setTravel] = useState(0);
@@ -25,7 +26,11 @@ export const EntryForm = ({ onSubmit }: Props) => {
       toast({ title: "Invalid time", description: "Use HH:MM format." });
       return;
     }
-    onSubmit({ date, dayType, location: location.trim(), call, wrap, mealMinutes, travelMinutes, isNight, perDiem });
+    if (actualStart && !/^\d{2}:\d{2}$/.test(actualStart)) {
+      toast({ title: "Invalid actual start", description: "Use HH:MM format or leave blank." });
+      return;
+    }
+    onSubmit({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem });
     toast({ title: "Entry captured", description: `${DAY_TYPE_LABELS[dayType]} · ${date} · ${call}–${wrap}` });
   };
 
