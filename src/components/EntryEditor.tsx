@@ -20,6 +20,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
   const [travelMinutes, setTravel] = useState(entry.travelMinutes);
   const [isNight, setNight] = useState(!!entry.isNight);
   const [perDiem, setPerDiem] = useState(!!entry.perDiem);
+  const [shootingOT, setShootingOT] = useState(!!entry.shootingOT);
   const [consecutiveDay, setConsecutiveDay] = useState<number>(entry.consecutiveDay ?? 1);
 
   // Reset state if a different entry becomes active.
@@ -34,6 +35,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
     setTravel(entry.travelMinutes);
     setNight(!!entry.isNight);
     setPerDiem(!!entry.perDiem);
+    setShootingOT(!!entry.shootingOT);
     setConsecutiveDay(entry.consecutiveDay ?? 1);
   }, [entry.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -41,7 +43,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
     e.preventDefault();
     if (!/^\d{2}:\d{2}$/.test(call) || !/^\d{2}:\d{2}$/.test(wrap)) return;
     if (actualStart && !/^\d{2}:\d{2}$/.test(actualStart)) return;
-    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, consecutiveDay });
+    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, consecutiveDay });
   };
 
   return (
