@@ -44,15 +44,24 @@ export const DEFAULT_DAY_TYPE_RATES: DayTypeRates = {
 
 export type RateConfig = {
   dayRate: number;          // £ flat day rate; if > 0, used in place of basic-hours × hourly
-  basicHours: number;       // contracted basic per day, e.g. 10
+  basicHours: number;       // contracted basic per day (BECTU: 10h on 5-day week, 11h on 6-day)
   hourlyRate: number;       // £ hourly rate (used for OT and when day rate = 0)
-  ot15Hours: number;        // hours after basic that count at 1.5x, e.g. 2
+  ot15Hours: number;        // hours after basic that count at 1.5x (BECTU: 2)
   // remaining hours count at 2x
+  preCallRate: number;      // multiplier for time worked before call sheet call (BECTU: 1.5x typical)
   nightPremium: number;     // £ flat per night-shoot day
-  perDiem: number;          // £ per-diem amount per claimed day
+  nightStart: string;       // night window start "20:00"
+  nightEnd: string;         // night window end "07:00"
+  perDiem: number;          // £ per-diem amount per claimed day (BECTU rec ~£45)
   vatRate: number;          // 0.20
   kitRentalPerDay?: number; // optional
   dayTypeRates: DayTypeRates;
+  // BECTU framework — editable
+  turnaroundHours: number;       // minimum rest between wrap and next call (BECTU: 11)
+  brokenTurnaroundFee: number;   // £ flat fee charged when turnaround breached
+  sixthDayMultiplier: number;    // 6th consecutive day pay multiplier (BECTU: 1.5)
+  seventhDayMultiplier: number;  // 7th consecutive day (BECTU: 2.0)
+  weeklyHoursCap: number;        // info only — anything above flagged
 };
 
 export const DEFAULT_RATES: RateConfig = {
@@ -60,11 +69,19 @@ export const DEFAULT_RATES: RateConfig = {
   basicHours: 10,
   hourlyRate: 35,
   ot15Hours: 2,
+  preCallRate: 1.5,
   nightPremium: 100,
+  nightStart: "20:00",
+  nightEnd: "07:00",
   perDiem: 45,
   vatRate: 0.2,
   kitRentalPerDay: 0,
   dayTypeRates: DEFAULT_DAY_TYPE_RATES,
+  turnaroundHours: 11,
+  brokenTurnaroundFee: 150,
+  sixthDayMultiplier: 1.5,
+  seventhDayMultiplier: 2.0,
+  weeklyHoursCap: 60,
 };
 
 const toMinutes = (hhmm: string) => {
