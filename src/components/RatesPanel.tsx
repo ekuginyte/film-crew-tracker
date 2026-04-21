@@ -13,6 +13,7 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-primary/60" />
       </div>
       <div className="grid grid-cols-2 gap-3">
+        <NumField label="Day rate £" value={rates.dayRate} onChange={(v) => set("dayRate", v)} step={5} />
         <NumField label="Hourly £" value={rates.hourlyRate} onChange={(v) => set("hourlyRate", v)} step={0.5} />
         <NumField label="Basic hrs/day" value={rates.basicHours} onChange={(v) => set("basicHours", v)} />
         <NumField label="OT 1.5x hrs" value={rates.ot15Hours} onChange={(v) => set("ot15Hours", v)} />
@@ -21,7 +22,7 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
         <NumField label="Kit £/day" value={rates.kitRentalPerDay || 0} onChange={(v) => set("kitRentalPerDay", v)} />
       </div>
       <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
-        Hours beyond basic + OT 1.5x window are charged at 2x. Stored locally in your browser.
+        Set day rate &gt; 0 to charge a flat daily fee in place of basic-hour pay (pro-rated by hours worked). OT 1.5x / 2x and night premium still apply on top. Stored locally in your browser.
       </p>
     </div>
   );

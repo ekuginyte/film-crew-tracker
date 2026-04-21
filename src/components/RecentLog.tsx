@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import type { DayEntry, RateConfig } from "@/lib/calc";
-import { breakdown, fmtGBP, fmtHours } from "@/lib/calc";
+import { breakdown, fmtGBP, fmtHours, DAY_TYPE_LABELS } from "@/lib/calc";
 
 type Props = { entries: DayEntry[]; rates: RateConfig; onRemove: (id: string) => void };
 
@@ -24,8 +24,12 @@ export const RecentLog = ({ entries, rates, onRemove }: Props) => {
                 {new Date(e.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }).toUpperCase()}
               </div>
               <div className="min-w-0">
-                <p className="text-sm text-foreground font-medium truncate">
-                  {e.location || "Unit base"} {e.isNight && <span className="text-accent text-[10px] ml-2">NIGHT</span>}
+                <p className="text-sm text-foreground font-medium truncate flex items-center gap-2">
+                  <span className="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">
+                    {DAY_TYPE_LABELS[e.dayType ?? "shoot"]}
+                  </span>
+                  <span className="truncate">{e.location || "Unit base"}</span>
+                  {e.isNight && <span className="text-accent text-[10px]">NIGHT</span>}
                 </p>
                 <p className="text-[10px] uppercase tracking-tighter text-muted-foreground font-mono">
                   {e.call} — {e.wrap} · {fmtHours(b.worked)}h
