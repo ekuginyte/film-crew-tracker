@@ -1,9 +1,22 @@
 // Hours & charge calculations for UK film crew (BECTU-style defaults).
 // All times in "HH:mm". Wrap may cross midnight (next day).
 
+export const DAY_TYPES = ["shoot", "travel", "prep", "rig", "rehearsal", "hold"] as const;
+export type DayType = (typeof DAY_TYPES)[number];
+
+export const DAY_TYPE_LABELS: Record<DayType, string> = {
+  shoot: "Shoot",
+  travel: "Travel",
+  prep: "Prep",
+  rig: "Rig",
+  rehearsal: "Rehearsal",
+  hold: "Hold",
+};
+
 export type DayEntry = {
   id: string;
   date: string;           // YYYY-MM-DD
+  dayType: DayType;
   location?: string;
   call: string;           // "07:00"
   wrap: string;           // "20:30" (may be next-day)
@@ -14,8 +27,9 @@ export type DayEntry = {
 };
 
 export type RateConfig = {
+  dayRate: number;          // £ flat day rate; if > 0, used in place of basic-hours × hourly
   basicHours: number;       // contracted basic per day, e.g. 10
-  hourlyRate: number;       // £ basic hourly rate
+  hourlyRate: number;       // £ hourly rate (used for OT and when day rate = 0)
   ot15Hours: number;        // hours after basic that count at 1.5x, e.g. 2
   // remaining hours count at 2x
   nightPremium: number;     // £ flat per night-shoot day
@@ -24,6 +38,7 @@ export type RateConfig = {
 };
 
 export const DEFAULT_RATES: RateConfig = {
+  dayRate: 0,
   basicHours: 10,
   hourlyRate: 35,
   ot15Hours: 2,
@@ -69,7 +84,10 @@ export function breakdown(entry: DayEntry, rates: RateConfig): DayBreakdown {
   const ot2 = Math.max(0, overtime - rates.ot15Hours);
   const travelHours = (entry.travelMinutes || 0) / 60;
 
-  const basicPay = basic * rates.hourlyRate;
+  // Day rate (if set) replaces hourly basic pay; pro-rated when worked < basic.
+  const basicPay = rates.dayRate > 0
+    ? rates.dayRate * (rates.basicHours > 0 ? basic / rates.basicHours : 1)
+    : basic * rates.hourlyRate;
   const ot15Pay = ot15 * rates.hourlyRate * 1.5;
   const ot2Pay = ot2 * rates.hourlyRate * 2;
   const travelPay = travelHours * rates.hourlyRate;
