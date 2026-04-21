@@ -71,10 +71,13 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
         <input value={location} maxLength={80} onChange={(e) => setLocation(e.target.value)} className={input} />
       </Field>
 
-      <Field label="Call">
+      <Field label="Call (sheet)">
         <input value={call} onChange={(e) => setCall(e.target.value)} placeholder="07:30" className={input + " font-mono tabular-nums"} />
       </Field>
-      <Field label="Wrap">
+      <Field label="Actual start">
+        <input value={actualStart} onChange={(e) => setActualStart(e.target.value)} placeholder="06:45" className={input + " font-mono tabular-nums"} />
+      </Field>
+      <Field label="Wrap" className="col-span-2">
         <input value={wrap} onChange={(e) => setWrap(e.target.value)} placeholder="20:00" className={input + " font-mono tabular-nums"} />
       </Field>
 
