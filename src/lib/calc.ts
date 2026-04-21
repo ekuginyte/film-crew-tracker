@@ -18,12 +18,14 @@ export type DayEntry = {
   date: string;           // YYYY-MM-DD
   dayType: DayType;
   location?: string;
-  call: string;           // "07:00"
+  call: string;           // scheduled call from call sheet, "07:00"
+  actualStart?: string;   // actual on-set start time (e.g. pre-call "06:30")
   wrap: string;           // "20:30" (may be next-day)
   mealMinutes: number;    // unpaid meal break
   travelMinutes: number;
   isNight?: boolean;      // night-shoot flag → night premium
   perDiem?: boolean;      // claim per-diem for this day
+  consecutiveDay?: number; // 1-7 within the working week (6th/7th trigger premiums)
   notes?: string;
 };
 
