@@ -39,18 +39,18 @@ function buildSegments(entry: DayEntry, rates: RateConfig): { segments: Segment[
   const mealStart = preCallMin + Math.max(0, Math.round((postCallTotal - meal) / 2));
   const mealEnd = mealStart + meal;
 
-  // Split worked minutes into basic / ot1.5 / ot2 in order.
+  // Split worked minutes into basic / shooting-OT (2×) / standard-OT (1.5×) in order.
   const basicCap = Math.round(rates.basicHours * 60);
-  const ot15Cap = Math.round(rates.ot15Hours * 60);
+  const shootingOTCap = Math.round((rates.shootingOTMinutes || 0));
 
   const basicMin = Math.min(workedTotal, basicCap);
-  const ot15Min = Math.min(Math.max(0, workedTotal - basicCap), ot15Cap);
-  const ot2Min = Math.max(0, workedTotal - basicCap - ot15Cap);
+  const ot2Min = Math.min(Math.max(0, workedTotal - basicCap), shootingOTCap);
+  const ot15Min = Math.max(0, workedTotal - basicCap - shootingOTCap);
 
   const workedBuckets = [
     { name: "Basic", remaining: basicMin, className: "bg-primary/80", swatch: "bg-primary" },
-    { name: "OT 1.5x", remaining: ot15Min, className: "bg-accent/80", swatch: "bg-accent" },
-    { name: "OT 2x", remaining: ot2Min, className: "bg-ruby/80", swatch: "bg-ruby" },
+    { name: "Shooting OT 2×", remaining: ot2Min, className: "bg-ruby/80", swatch: "bg-ruby" },
+    { name: "OT 1.5×", remaining: ot15Min, className: "bg-accent/80", swatch: "bg-accent" },
   ];
 
   const segments: Segment[] = [];
@@ -175,8 +175,8 @@ export const DayTimeline = ({ entry, rates }: Props) => {
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-[10px] uppercase tracking-widest text-muted-foreground font-mono pt-2">
         {b.preCall > 0 && <Legend swatch="bg-accent/50" label={`Pre-call ${fmtHours(b.preCall)}h`} />}
         <Legend swatch="bg-primary" label={`Basic ${fmtHours(b.basic)}h`} />
-        {b.ot15 > 0 && <Legend swatch="bg-accent" label={`OT 1.5x ${fmtHours(b.ot15)}h`} />}
-        {b.ot2 > 0 && <Legend swatch="bg-ruby" label={`OT 2x ${fmtHours(b.ot2)}h`} />}
+        {b.ot2 > 0 && <Legend swatch="bg-ruby" label={`Shooting OT 2× ${fmtHours(b.ot2)}h`} />}
+        {b.ot15 > 0 && <Legend swatch="bg-accent" label={`OT 1.5× ${fmtHours(b.ot15)}h`} />}
         {entry.mealMinutes > 0 && <Legend swatch="bg-muted" label={`Meal ${entry.mealMinutes}m`} />}
         {entry.isNight && <Legend swatch="bg-accent/40" label="Night premium" />}
       </div>

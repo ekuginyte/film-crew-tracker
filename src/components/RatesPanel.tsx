@@ -36,7 +36,7 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
             <NumField label="Day rate £" value={rates.dayRate} onChange={(v) => set("dayRate", v)} step={5} />
             <NumField label="Hourly £" value={rates.hourlyRate} onChange={(v) => set("hourlyRate", v)} step={0.5} />
             <NumField label="Basic hrs/day" value={rates.basicHours} onChange={(v) => set("basicHours", v)} />
-            <NumField label="OT 1.5x hrs" value={rates.ot15Hours} onChange={(v) => set("ot15Hours", v)} />
+            <NumField label="Shooting OT mins (2×)" value={rates.shootingOTMinutes} onChange={(v) => set("shootingOTMinutes", v)} step={15} />
             <NumField label="Pre-call ×" value={rates.preCallRate} onChange={(v) => set("preCallRate", v)} step={0.1} />
             <NumField label="Night premium £" value={rates.nightPremium} onChange={(v) => set("nightPremium", v)} />
             <NumField label="Per diem £" value={rates.perDiem} onChange={(v) => set("perDiem", v)} step={1} />
@@ -44,7 +44,7 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
             <NumField label="Kit £/day" value={rates.kitRentalPerDay || 0} onChange={(v) => set("kitRentalPerDay", v)} />
           </div>
           <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
-            BECTU defaults: 10h basic, 2h @ 1.5×, then 2×. Day rate &gt; 0 replaces basic-hour pay (pro-rated). Pre-call paid at hourly × multiplier.
+            After {rates.basicHours}h basic, the first <span className="text-ruby">{rates.shootingOTMinutes}m</span> are paid as Shooting OT (2×); any further OT reverts to standard 1.5× (typical UK practice — editable in 15-min steps). Day rate &gt; 0 replaces basic pay (pro-rated).
           </p>
         </>
       )}

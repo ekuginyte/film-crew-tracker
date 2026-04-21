@@ -43,8 +43,8 @@ export const Summary = ({ entries, rates, project }: Props) => {
           <h3 className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-6">Production Summary</h3>
           <div className="grid grid-cols-2 gap-8">
             <Stat label="Standard Hours" value={fmtHours(t.basicHours)} />
+            <Stat label="Shooting OT @ 2x" value={fmtHours(t.ot2Hours)} tone="ruby" />
             <Stat label="Overtime @ 1.5x" value={fmtHours(t.ot15Hours)} tone="primary" />
-            <Stat label="Overtime @ 2x" value={fmtHours(t.ot2Hours)} tone="ruby" />
             <Stat label="Travel Hours" value={fmtHours(t.travelHours)} />
           </div>
         </div>

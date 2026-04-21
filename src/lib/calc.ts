@@ -46,8 +46,8 @@ export type RateConfig = {
   dayRate: number;          // £ flat day rate; if > 0, used in place of basic-hours × hourly
   basicHours: number;       // contracted basic per day (BECTU: 10h on 5-day week, 11h on 6-day)
   hourlyRate: number;       // £ hourly rate (used for OT and when day rate = 0)
-  ot15Hours: number;        // hours after basic that count at 1.5x (BECTU: 2)
-  // remaining hours count at 2x
+  shootingOTMinutes: number; // minutes immediately after basic paid at SHOOTING OT (2x). Editable in 15-min steps. Remainder reverts to standard 1.5x OT.
+  ot15Hours: number;        // legacy / kept for backwards compat — no longer drives the 2× window
   preCallRate: number;      // multiplier for time worked before call sheet call (BECTU: 1.5x typical)
   nightPremium: number;     // £ flat per night-shoot day
   nightStart: string;       // night window start "20:00"
@@ -68,6 +68,7 @@ export const DEFAULT_RATES: RateConfig = {
   dayRate: 0,
   basicHours: 10,
   hourlyRate: 35,
+  shootingOTMinutes: 60,
   ot15Hours: 2,
   preCallRate: 1.5,
   nightPremium: 100,
@@ -134,8 +135,10 @@ export function breakdown(entry: DayEntry, rates: RateConfig): DayBreakdown {
   const preCall = preCallHours(entry);
   const basic = Math.min(worked, rates.basicHours);
   const overtime = Math.max(0, worked - rates.basicHours);
-  const ot15 = Math.min(overtime, rates.ot15Hours);
-  const ot2 = Math.max(0, overtime - rates.ot15Hours);
+  // Shooting OT: first N minutes after basic at 2×, remainder at 1.5×.
+  const shootingOTHours = Math.max(0, (rates.shootingOTMinutes || 0)) / 60;
+  const ot2 = Math.min(overtime, shootingOTHours);
+  const ot15 = Math.max(0, overtime - shootingOTHours);
   const travelHours = (entry.travelMinutes || 0) / 60;
 
   const dayTypeMultiplier = rates.dayTypeRates?.[entry.dayType] ?? 1;

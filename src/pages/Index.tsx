@@ -3,13 +3,21 @@ import { EntryForm } from "@/components/EntryForm";
 import { RecentLog } from "@/components/RecentLog";
 import { Summary } from "@/components/Summary";
 import { RatesPanel } from "@/components/RatesPanel";
-import { useEntries } from "@/hooks/useEntries";
+import { WeekCalendar } from "@/components/WeekCalendar";
+import { ProjectSwitcher } from "@/components/ProjectSwitcher";
+import { useProjects } from "@/hooks/useProjects";
 import { Button } from "@/components/ui/button";
-import { Settings2, X } from "lucide-react";
+import { CalendarRange, ClipboardList, Settings2, X } from "lucide-react";
+
+type View = "capture" | "calendar";
 
 const Index = () => {
-  const { entries, addEntry, updateEntry, removeEntry, rates, setRates, project, setProject } = useEntries();
+  const {
+    projects, active, setActive, createProject, renameProject, deleteProject, duplicateProject,
+    entries, addEntry, updateEntry, removeEntry, rates, setRates, project, setProject,
+  } = useProjects();
   const [showRates, setShowRates] = useState(false);
+  const [view, setView] = useState<View>("capture");
 
   return (
     <div className="min-h-dvh bg-obsidian text-muted-foreground antialiased p-6 lg:p-12">
@@ -22,10 +30,35 @@ const Index = () => {
               SLATE<span className="font-semibold italic">TRACK</span>
             </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1">Current Project</p>
-              <p className="text-foreground font-medium tracking-tight uppercase">{project}</p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <ProjectSwitcher
+              projects={projects}
+              activeId={active.id}
+              onSelect={setActive}
+              onCreate={createProject}
+              onRename={renameProject}
+              onDuplicate={duplicateProject}
+              onDelete={deleteProject}
+            />
+            <div className="flex bg-carbon border border-border rounded-lg p-1 gap-1">
+              <button
+                type="button"
+                onClick={() => setView("capture")}
+                aria-pressed={view === "capture"}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-widest transition-colors ${
+                  view === "capture" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}>
+                <ClipboardList className="size-3.5" /> Capture
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("calendar")}
+                aria-pressed={view === "calendar"}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-widest transition-colors ${
+                  view === "calendar" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}>
+                <CalendarRange className="size-3.5" /> Calendar
+              </button>
             </div>
             <Button variant="outlineGlass" size="default" onClick={() => setShowRates((v) => !v)} aria-label="Toggle settings">
               {showRates ? <X className="size-4" /> : <Settings2 className="size-4" />}
@@ -35,22 +68,36 @@ const Index = () => {
 
         <main className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <section className="lg:col-span-7 space-y-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-medium text-foreground">Session Capture</h2>
-              <span className="text-xs font-mono text-muted-foreground bg-carbon px-3 py-1 rounded-full border border-border">
-                {entries.length} {entries.length === 1 ? "DAY" : "DAYS"} LOGGED
-              </span>
-            </div>
+            {view === "capture" ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-medium text-foreground">Session Capture</h2>
+                  <span className="text-xs font-mono text-muted-foreground bg-carbon px-3 py-1 rounded-full border border-border">
+                    {entries.length} {entries.length === 1 ? "DAY" : "DAYS"} LOGGED
+                  </span>
+                </div>
 
-            <div className="bg-carbon rounded-2xl p-8 border border-border shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 rounded-full" aria-hidden />
-              <EntryForm onSubmit={addEntry} />
-            </div>
+                <div className="bg-carbon rounded-2xl p-8 border border-border shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 rounded-full" aria-hidden />
+                  <EntryForm onSubmit={addEntry} />
+                </div>
 
-            <div className="space-y-4">
-              <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">Recent Captured Slates</h3>
-              <RecentLog entries={entries} rates={rates} onRemove={removeEntry} onUpdate={updateEntry} />
-            </div>
+                <div className="space-y-4">
+                  <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">Recent Captured Slates</h3>
+                  <RecentLog entries={entries} rates={rates} onRemove={removeEntry} onUpdate={updateEntry} />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-medium text-foreground">Production Calendar</h2>
+                  <span className="text-xs font-mono text-muted-foreground bg-carbon px-3 py-1 rounded-full border border-border">
+                    Week View
+                  </span>
+                </div>
+                <WeekCalendar entries={entries} rates={rates} />
+              </>
+            )}
           </section>
 
           <aside className="lg:col-span-5 space-y-6">
