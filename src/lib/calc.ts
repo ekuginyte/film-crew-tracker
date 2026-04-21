@@ -18,12 +18,14 @@ export type DayEntry = {
   date: string;           // YYYY-MM-DD
   dayType: DayType;
   location?: string;
-  call: string;           // "07:00"
+  call: string;           // scheduled call from call sheet, "07:00"
+  actualStart?: string;   // actual on-set start time (e.g. pre-call "06:30")
   wrap: string;           // "20:30" (may be next-day)
   mealMinutes: number;    // unpaid meal break
   travelMinutes: number;
   isNight?: boolean;      // night-shoot flag → night premium
   perDiem?: boolean;      // claim per-diem for this day
+  consecutiveDay?: number; // 1-7 within the working week (6th/7th trigger premiums)
   notes?: string;
 };
 
@@ -42,15 +44,24 @@ export const DEFAULT_DAY_TYPE_RATES: DayTypeRates = {
 
 export type RateConfig = {
   dayRate: number;          // £ flat day rate; if > 0, used in place of basic-hours × hourly
-  basicHours: number;       // contracted basic per day, e.g. 10
+  basicHours: number;       // contracted basic per day (BECTU: 10h on 5-day week, 11h on 6-day)
   hourlyRate: number;       // £ hourly rate (used for OT and when day rate = 0)
-  ot15Hours: number;        // hours after basic that count at 1.5x, e.g. 2
+  ot15Hours: number;        // hours after basic that count at 1.5x (BECTU: 2)
   // remaining hours count at 2x
+  preCallRate: number;      // multiplier for time worked before call sheet call (BECTU: 1.5x typical)
   nightPremium: number;     // £ flat per night-shoot day
-  perDiem: number;          // £ per-diem amount per claimed day
+  nightStart: string;       // night window start "20:00"
+  nightEnd: string;         // night window end "07:00"
+  perDiem: number;          // £ per-diem amount per claimed day (BECTU rec ~£45)
   vatRate: number;          // 0.20
   kitRentalPerDay?: number; // optional
   dayTypeRates: DayTypeRates;
+  // BECTU framework — editable
+  turnaroundHours: number;       // minimum rest between wrap and next call (BECTU: 11)
+  brokenTurnaroundFee: number;   // £ flat fee charged when turnaround breached
+  sixthDayMultiplier: number;    // 6th consecutive day pay multiplier (BECTU: 1.5)
+  seventhDayMultiplier: number;  // 7th consecutive day (BECTU: 2.0)
+  weeklyHoursCap: number;        // info only — anything above flagged
 };
 
 export const DEFAULT_RATES: RateConfig = {
@@ -58,11 +69,19 @@ export const DEFAULT_RATES: RateConfig = {
   basicHours: 10,
   hourlyRate: 35,
   ot15Hours: 2,
+  preCallRate: 1.5,
   nightPremium: 100,
+  nightStart: "20:00",
+  nightEnd: "07:00",
   perDiem: 45,
   vatRate: 0.2,
   kitRentalPerDay: 0,
   dayTypeRates: DEFAULT_DAY_TYPE_RATES,
+  turnaroundHours: 11,
+  brokenTurnaroundFee: 150,
+  sixthDayMultiplier: 1.5,
+  seventhDayMultiplier: 2.0,
+  weeklyHoursCap: 60,
 };
 
 const toMinutes = (hhmm: string) => {
@@ -72,11 +91,22 @@ const toMinutes = (hhmm: string) => {
 
 export function workedHours(entry: DayEntry): number {
   if (!entry.call || !entry.wrap) return 0;
-  let start = toMinutes(entry.call);
+  const startStr = entry.actualStart && /^\d{2}:\d{2}$/.test(entry.actualStart) ? entry.actualStart : entry.call;
+  let start = toMinutes(startStr);
   let end = toMinutes(entry.wrap);
   if (end <= start) end += 24 * 60; // crossed midnight
   const worked = end - start - (entry.mealMinutes || 0);
   return Math.max(0, worked / 60);
+}
+
+/** Hours worked before the official call sheet call time (pre-call). */
+export function preCallHours(entry: DayEntry): number {
+  if (!entry.actualStart || !/^\d{2}:\d{2}$/.test(entry.actualStart)) return 0;
+  const call = toMinutes(entry.call);
+  const actual = toMinutes(entry.actualStart);
+  // Only count if actual is earlier than call on the same day.
+  if (actual >= call) return 0;
+  return (call - actual) / 60;
 }
 
 export type DayBreakdown = {
@@ -84,20 +114,24 @@ export type DayBreakdown = {
   basic: number;
   ot15: number;
   ot2: number;
+  preCall: number;
   travelHours: number;
   basicPay: number;
   ot15Pay: number;
   ot2Pay: number;
+  preCallPay: number;
   travelPay: number;
   nightPay: number;
   perDiemPay: number;
   kitRental: number;
+  consecutiveMultiplier: number;
   dayTypeMultiplier: number;
   total: number;
 };
 
 export function breakdown(entry: DayEntry, rates: RateConfig): DayBreakdown {
   const worked = workedHours(entry);
+  const preCall = preCallHours(entry);
   const basic = Math.min(worked, rates.basicHours);
   const overtime = Math.max(0, worked - rates.basicHours);
   const ot15 = Math.min(overtime, rates.ot15Hours);
@@ -106,22 +140,29 @@ export function breakdown(entry: DayEntry, rates: RateConfig): DayBreakdown {
 
   const dayTypeMultiplier = rates.dayTypeRates?.[entry.dayType] ?? 1;
 
+  // Consecutive-day premium (BECTU 6th/7th day rules).
+  let consecutiveMultiplier = 1;
+  if (entry.consecutiveDay === 6) consecutiveMultiplier = rates.sixthDayMultiplier;
+  else if (entry.consecutiveDay && entry.consecutiveDay >= 7) consecutiveMultiplier = rates.seventhDayMultiplier;
+
+  const stackedMultiplier = dayTypeMultiplier * consecutiveMultiplier;
+
   // Day rate (if set) replaces hourly basic pay; pro-rated when worked < basic.
   const rawBasicPay = rates.dayRate > 0
     ? rates.dayRate * (rates.basicHours > 0 ? basic / rates.basicHours : 1)
     : basic * rates.hourlyRate;
 
-  // Day-type multiplier applies to basic + OT + travel pay (not per-diem / kit / night premium).
-  const basicPay = rawBasicPay * dayTypeMultiplier;
-  const ot15Pay = ot15 * rates.hourlyRate * 1.5 * dayTypeMultiplier;
-  const ot2Pay = ot2 * rates.hourlyRate * 2 * dayTypeMultiplier;
-  const travelPay = travelHours * rates.hourlyRate * dayTypeMultiplier;
+  const basicPay = rawBasicPay * stackedMultiplier;
+  const ot15Pay = ot15 * rates.hourlyRate * 1.5 * stackedMultiplier;
+  const ot2Pay = ot2 * rates.hourlyRate * 2 * stackedMultiplier;
+  const preCallPay = preCall * rates.hourlyRate * rates.preCallRate * stackedMultiplier;
+  const travelPay = travelHours * rates.hourlyRate * stackedMultiplier;
   const nightPay = entry.isNight ? rates.nightPremium : 0;
   const perDiemPay = entry.perDiem ? rates.perDiem : 0;
   const kitRental = rates.kitRentalPerDay || 0;
 
-  const total = basicPay + ot15Pay + ot2Pay + travelPay + nightPay + perDiemPay + kitRental;
-  return { worked, basic, ot15, ot2, travelHours, basicPay, ot15Pay, ot2Pay, travelPay, nightPay, perDiemPay, kitRental, dayTypeMultiplier, total };
+  const total = basicPay + ot15Pay + ot2Pay + preCallPay + travelPay + nightPay + perDiemPay + kitRental;
+  return { worked, basic, ot15, ot2, preCall, travelHours, basicPay, ot15Pay, ot2Pay, preCallPay, travelPay, nightPay, perDiemPay, kitRental, consecutiveMultiplier, dayTypeMultiplier, total };
 }
 
 export type Totals = {

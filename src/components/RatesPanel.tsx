@@ -4,7 +4,7 @@ import { DAY_TYPES, DAY_TYPE_LABELS } from "@/lib/calc";
 
 type Props = { rates: RateConfig; onChange: (r: RateConfig) => void; project: string; onProject: (s: string) => void };
 
-type Tab = "rates" | "dayTypes";
+type Tab = "rates" | "dayTypes" | "bectu";
 
 export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
   const [tab, setTab] = useState<Tab>("rates");
@@ -27,25 +27,29 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
       <div className="flex gap-1 bg-obsidian border border-border rounded-lg p-1">
         <TabButton active={tab === "rates"} onClick={() => setTab("rates")}>Rates</TabButton>
         <TabButton active={tab === "dayTypes"} onClick={() => setTab("dayTypes")}>Day Types</TabButton>
+        <TabButton active={tab === "bectu"} onClick={() => setTab("bectu")}>BECTU</TabButton>
       </div>
 
-      {tab === "rates" ? (
+      {tab === "rates" && (
         <>
           <div className="grid grid-cols-2 gap-3">
             <NumField label="Day rate £" value={rates.dayRate} onChange={(v) => set("dayRate", v)} step={5} />
             <NumField label="Hourly £" value={rates.hourlyRate} onChange={(v) => set("hourlyRate", v)} step={0.5} />
             <NumField label="Basic hrs/day" value={rates.basicHours} onChange={(v) => set("basicHours", v)} />
             <NumField label="OT 1.5x hrs" value={rates.ot15Hours} onChange={(v) => set("ot15Hours", v)} />
+            <NumField label="Pre-call ×" value={rates.preCallRate} onChange={(v) => set("preCallRate", v)} step={0.1} />
             <NumField label="Night premium £" value={rates.nightPremium} onChange={(v) => set("nightPremium", v)} />
             <NumField label="Per diem £" value={rates.perDiem} onChange={(v) => set("perDiem", v)} step={1} />
             <NumField label="VAT rate" value={rates.vatRate} onChange={(v) => set("vatRate", v)} step={0.01} />
             <NumField label="Kit £/day" value={rates.kitRentalPerDay || 0} onChange={(v) => set("kitRentalPerDay", v)} />
           </div>
           <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
-            Day rate &gt; 0 replaces basic-hour pay (pro-rated by hours). OT, night premium and per-diems stack on top. Stored locally.
+            BECTU defaults: 10h basic, 2h @ 1.5×, then 2×. Day rate &gt; 0 replaces basic-hour pay (pro-rated). Pre-call paid at hourly × multiplier.
           </p>
         </>
-      ) : (
+      )}
+
+      {tab === "dayTypes" && (
         <>
           <div className="space-y-2">
             {DAY_TYPES.map((t) => {
@@ -63,6 +67,33 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
           </div>
           <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
             Multiplier applied to basic + OT + travel pay for each day type. 1.00 = full rate, 0.50 = half, 0 = unpaid. Per-diem and night premium are unaffected.
+          </p>
+        </>
+      )}
+
+      {tab === "bectu" && (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <NumField label="Turnaround hrs" value={rates.turnaroundHours} onChange={(v) => set("turnaroundHours", v)} step={0.5} />
+            <NumField label="Broken T/A fee £" value={rates.brokenTurnaroundFee} onChange={(v) => set("brokenTurnaroundFee", v)} step={10} />
+            <NumField label="6th day ×" value={rates.sixthDayMultiplier} onChange={(v) => set("sixthDayMultiplier", v)} step={0.05} />
+            <NumField label="7th day ×" value={rates.seventhDayMultiplier} onChange={(v) => set("seventhDayMultiplier", v)} step={0.05} />
+            <NumField label="Weekly hrs cap" value={rates.weeklyHoursCap} onChange={(v) => set("weeklyHoursCap", v)} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Night window start</label>
+              <input value={rates.nightStart} onChange={(e) => set("nightStart", e.target.value)} placeholder="20:00"
+                className="w-full bg-obsidian border border-border rounded-lg px-3 py-2 text-foreground font-mono tabular-nums focus:outline-none focus:border-primary/60" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Night window end</label>
+              <input value={rates.nightEnd} onChange={(e) => set("nightEnd", e.target.value)} placeholder="07:00"
+                className="w-full bg-obsidian border border-border rounded-lg px-3 py-2 text-foreground font-mono tabular-nums focus:outline-none focus:border-primary/60" />
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
+            Based on the PACT/BECTU agreement (2023): 11h minimum turnaround, 6th day at 1.5× and 7th day at 2× of the basic. All values editable per production.
           </p>
         </>
       )}

@@ -13,6 +13,7 @@ export const EntryForm = ({ onSubmit }: Props) => {
   const [dayType, setDayType] = useState<DayType>("shoot");
   const [location, setLocation] = useState("");
   const [call, setCall] = useState("07:30");
+  const [actualStart, setActualStart] = useState("");
   const [wrap, setWrap] = useState("20:00");
   const [mealMinutes, setMeal] = useState(60);
   const [travelMinutes, setTravel] = useState(0);
@@ -25,7 +26,11 @@ export const EntryForm = ({ onSubmit }: Props) => {
       toast({ title: "Invalid time", description: "Use HH:MM format." });
       return;
     }
-    onSubmit({ date, dayType, location: location.trim(), call, wrap, mealMinutes, travelMinutes, isNight, perDiem });
+    if (actualStart && !/^\d{2}:\d{2}$/.test(actualStart)) {
+      toast({ title: "Invalid actual start", description: "Use HH:MM format or leave blank." });
+      return;
+    }
+    onSubmit({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem });
     toast({ title: "Entry captured", description: `${DAY_TYPE_LABELS[dayType]} · ${date} · ${call}–${wrap}` });
   };
 
@@ -64,11 +69,17 @@ export const EntryForm = ({ onSubmit }: Props) => {
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-primary/60 transition-colors" />
       </Field>
 
-      <Field label="Call Time">
+      <Field label="Call Time" className="col-span-2 md:col-span-1">
         <input value={call} onChange={(e) => setCall(e.target.value)} placeholder="07:30"
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-accent/60" />
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">From call sheet</p>
       </Field>
-      <Field label="Wrap Time">
+      <Field label="Actual Start" className="col-span-2 md:col-span-1">
+        <input value={actualStart} onChange={(e) => setActualStart(e.target.value)} placeholder="06:45"
+          className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-primary/60" />
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">If pre-call (else blank)</p>
+      </Field>
+      <Field label="Wrap Time" className="col-span-2 md:col-span-1">
         <input value={wrap} onChange={(e) => setWrap(e.target.value)} placeholder="20:45"
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-ruby/60" />
       </Field>
@@ -100,7 +111,7 @@ export const EntryForm = ({ onSubmit }: Props) => {
       <div className="col-span-2 flex gap-3 pt-2">
         <Button type="submit" variant="volt" size="xl" className="flex-1">CAPTURE ENTRY</Button>
         <Button type="reset" variant="outlineGlass" size="xl"
-          onClick={() => { setLocation(""); setCall("07:30"); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); }}>
+          onClick={() => { setLocation(""); setCall("07:30"); setActualStart(""); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); }}>
           Reset
         </Button>
       </div>
