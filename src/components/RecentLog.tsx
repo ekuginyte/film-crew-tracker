@@ -55,9 +55,12 @@ export const RecentLog = ({ entries, rates, onRemove, onUpdate }: Props) => {
                     {e.isNight && <span className="text-accent text-[10px]">NIGHT</span>}
                   </p>
                   <p className="text-[10px] uppercase tracking-tighter text-muted-foreground font-mono">
-                    {e.call} — {e.wrap} · {fmtHours(b.worked)}h
+                    {e.actualStart && e.actualStart !== e.call ? `${e.actualStart}→` : ""}{e.call} — {e.wrap} · {fmtHours(b.worked)}h
+                    {b.preCall > 0 && <span className="text-accent"> · +{fmtHours(b.preCall)} PC</span>}
                     {b.ot15 + b.ot2 > 0 && <span className="text-primary"> · +{fmtHours(b.ot15 + b.ot2)} OT</span>}
                     {e.perDiem && <span className="text-primary"> · PD</span>}
+                    {e.consecutiveDay === 6 && <span className="text-accent"> · D6</span>}
+                    {e.consecutiveDay && e.consecutiveDay >= 7 && <span className="text-ruby"> · D7</span>}
                   </p>
                 </div>
               </div>
