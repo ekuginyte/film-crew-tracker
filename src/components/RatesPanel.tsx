@@ -43,8 +43,14 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
             <NumField label="VAT rate" value={rates.vatRate} onChange={(v) => set("vatRate", v)} step={0.01} />
             <NumField label="Kit £/day" value={rates.kitRentalPerDay || 0} onChange={(v) => set("kitRentalPerDay", v)} />
           </div>
+          <label className="flex items-center gap-3 cursor-pointer select-none bg-obsidian/60 border border-border rounded-lg px-3 py-2">
+            <input type="checkbox" checked={!!rates.shootingOTDefault}
+              onChange={(e) => set("shootingOTDefault", e.target.checked)}
+              className="size-4 accent-[hsl(var(--ruby))]" />
+            <span className="text-xs text-foreground">Default new entries to <span className="text-ruby">Shooting OT</span></span>
+          </label>
           <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
-            After {rates.basicHours}h basic, the first <span className="text-ruby">{rates.shootingOTMinutes}m</span> are paid as Shooting OT (2×); any further OT reverts to standard 1.5× (typical UK practice — editable in 15-min steps). Day rate &gt; 0 replaces basic pay (pro-rated).
+            Shooting OT is opt-in per day. When ticked on an entry, the first <span className="text-ruby">{rates.shootingOTMinutes}m</span> after basic are paid at 2×; any further OT reverts to 1.5×. When unticked, all OT after basic is 1.5×.
           </p>
         </>
       )}
