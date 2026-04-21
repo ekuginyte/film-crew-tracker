@@ -25,6 +25,7 @@ export type DayEntry = {
   travelMinutes: number;
   isNight?: boolean;      // night-shoot flag → night premium
   perDiem?: boolean;      // claim per-diem for this day
+  shootingOT?: boolean;   // when true, first `shootingOTMinutes` after basic count at 2× then 1.5×; otherwise all OT is 1.5×
   consecutiveDay?: number; // 1-7 within the working week (6th/7th trigger premiums)
   notes?: string;
 };
@@ -135,8 +136,8 @@ export function breakdown(entry: DayEntry, rates: RateConfig): DayBreakdown {
   const preCall = preCallHours(entry);
   const basic = Math.min(worked, rates.basicHours);
   const overtime = Math.max(0, worked - rates.basicHours);
-  // Shooting OT: first N minutes after basic at 2×, remainder at 1.5×.
-  const shootingOTHours = Math.max(0, (rates.shootingOTMinutes || 0)) / 60;
+  // Shooting OT only applies when the entry opts in. Otherwise all OT is 1.5×.
+  const shootingOTHours = entry.shootingOT ? Math.max(0, (rates.shootingOTMinutes || 0)) / 60 : 0;
   const ot2 = Math.min(overtime, shootingOTHours);
   const ot15 = Math.max(0, overtime - shootingOTHours);
   const travelHours = (entry.travelMinutes || 0) / 60;
