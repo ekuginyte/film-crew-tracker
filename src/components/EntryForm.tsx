@@ -4,11 +4,11 @@ import { toast } from "@/hooks/use-toast";
 import type { DayEntry, DayType } from "@/lib/calc";
 import { DAY_TYPES, DAY_TYPE_LABELS } from "@/lib/calc";
 
-type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void };
+type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void; defaultShootingOT?: boolean };
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export const EntryForm = ({ onSubmit }: Props) => {
+export const EntryForm = ({ onSubmit, defaultShootingOT = false }: Props) => {
   const [date, setDate] = useState(today());
   const [dayType, setDayType] = useState<DayType>("shoot");
   const [location, setLocation] = useState("");
@@ -19,6 +19,7 @@ export const EntryForm = ({ onSubmit }: Props) => {
   const [travelMinutes, setTravel] = useState(0);
   const [isNight, setNight] = useState(false);
   const [perDiem, setPerDiem] = useState(false);
+  const [shootingOT, setShootingOT] = useState(defaultShootingOT);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +31,7 @@ export const EntryForm = ({ onSubmit }: Props) => {
       toast({ title: "Invalid actual start", description: "Use HH:MM format or leave blank." });
       return;
     }
-    onSubmit({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem });
+    onSubmit({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT });
     toast({ title: "Entry captured", description: `${DAY_TYPE_LABELS[dayType]} · ${date} · ${call}–${wrap}` });
   };
 
