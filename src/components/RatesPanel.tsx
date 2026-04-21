@@ -4,7 +4,7 @@ import { DAY_TYPES, DAY_TYPE_LABELS } from "@/lib/calc";
 
 type Props = { rates: RateConfig; onChange: (r: RateConfig) => void; project: string; onProject: (s: string) => void };
 
-type Tab = "rates" | "dayTypes";
+type Tab = "rates" | "dayTypes" | "bectu";
 
 export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
   const [tab, setTab] = useState<Tab>("rates");
