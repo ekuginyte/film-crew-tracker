@@ -47,7 +47,8 @@ export type RateConfig = {
   dayRate: number;          // £ flat day rate; if > 0, used in place of basic-hours × hourly
   basicHours: number;       // contracted basic per day (BECTU: 10h on 5-day week, 11h on 6-day)
   hourlyRate: number;       // £ hourly rate (used for OT and when day rate = 0)
-  shootingOTMinutes: number; // minutes immediately after basic paid at SHOOTING OT (2x). Editable in 15-min steps. Remainder reverts to standard 1.5x OT.
+  shootingOTMinutes: number; // minutes after basic paid at 2× when entry.shootingOT is on; remainder reverts to 1.5×
+  shootingOTDefault: boolean; // default value for the per-entry shootingOT toggle
   ot15Hours: number;        // legacy / kept for backwards compat — no longer drives the 2× window
   preCallRate: number;      // multiplier for time worked before call sheet call (BECTU: 1.5x typical)
   nightPremium: number;     // £ flat per night-shoot day
@@ -70,6 +71,7 @@ export const DEFAULT_RATES: RateConfig = {
   basicHours: 10,
   hourlyRate: 35,
   shootingOTMinutes: 60,
+  shootingOTDefault: false,
   ot15Hours: 2,
   preCallRate: 1.5,
   nightPremium: 100,
