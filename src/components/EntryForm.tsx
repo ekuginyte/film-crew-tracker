@@ -4,11 +4,11 @@ import { toast } from "@/hooks/use-toast";
 import type { DayEntry, DayType } from "@/lib/calc";
 import { DAY_TYPES, DAY_TYPE_LABELS } from "@/lib/calc";
 
-type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void; defaultShootingOT?: boolean };
+type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void; defaultShootingOT?: boolean; defaultShootingOTMinutes?: number };
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export const EntryForm = ({ onSubmit, defaultShootingOT = false }: Props) => {
+export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShootingOTMinutes = 60 }: Props) => {
   const [date, setDate] = useState(today());
   const [dayType, setDayType] = useState<DayType>("shoot");
   const [location, setLocation] = useState("");
@@ -20,6 +20,7 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false }: Props) => {
   const [isNight, setNight] = useState(false);
   const [perDiem, setPerDiem] = useState(false);
   const [shootingOT, setShootingOT] = useState(defaultShootingOT);
+  const [shootingOTMinutes, setShootingOTMinutes] = useState<number>(defaultShootingOTMinutes);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +32,7 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false }: Props) => {
       toast({ title: "Invalid actual start", description: "Use HH:MM format or leave blank." });
       return;
     }
-    onSubmit({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT });
+    onSubmit({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, shootingOTMinutes: shootingOT ? shootingOTMinutes : undefined });
     toast({ title: "Entry captured", description: `${DAY_TYPE_LABELS[dayType]} · ${date} · ${call}–${wrap}` });
   };
 
@@ -107,17 +108,31 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false }: Props) => {
             className="size-4 accent-[hsl(var(--primary))]" />
           <span className="text-sm text-foreground">Per diem <span className="text-muted-foreground">— claim daily allowance</span></span>
         </label>
-        <label className="sm:col-span-2 flex items-center gap-3 cursor-pointer select-none bg-obsidian/60 border border-border rounded-lg px-4 py-3 hover:border-ruby/40 transition-colors">
+        <label className="sm:col-span-2 flex flex-wrap items-center gap-3 cursor-pointer select-none bg-obsidian/60 border border-border rounded-lg px-4 py-3 hover:border-ruby/40 transition-colors">
           <input type="checkbox" checked={shootingOT} onChange={(e) => setShootingOT(e.target.checked)}
             className="size-4 accent-[hsl(var(--ruby))]" />
-          <span className="text-sm text-foreground">Shooting OT <span className="text-muted-foreground">— first window after basic at 2× (otherwise all OT is 1.5×)</span></span>
+          <span className="text-sm text-foreground flex-1 min-w-[10rem]">Shooting OT <span className="text-muted-foreground">— window after basic at 2×</span></span>
+          <span className="flex items-center gap-2" onClick={(e) => e.preventDefault()}>
+            <input
+              type="number"
+              min={0}
+              max={480}
+              step={15}
+              value={shootingOTMinutes}
+              disabled={!shootingOT}
+              onChange={(e) => setShootingOTMinutes(Math.max(0, Number(e.target.value) || 0))}
+              onClick={(e) => e.stopPropagation()}
+              className="w-20 bg-obsidian border border-border rounded-md px-2 py-1.5 text-sm text-foreground font-mono tabular-nums text-right focus:outline-none focus:border-ruby/60 disabled:opacity-40"
+            />
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">mins @ 2×</span>
+          </span>
         </label>
       </div>
 
       <div className="col-span-2 flex gap-3 pt-2">
         <Button type="submit" variant="volt" size="xl" className="flex-1">CAPTURE ENTRY</Button>
         <Button type="reset" variant="outlineGlass" size="xl"
-          onClick={() => { setLocation(""); setCall("07:30"); setActualStart(""); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); setShootingOT(defaultShootingOT); }}>
+          onClick={() => { setLocation(""); setCall("07:30"); setActualStart(""); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); setShootingOT(defaultShootingOT); setShootingOTMinutes(defaultShootingOTMinutes); }}>
           Reset
         </Button>
       </div>
