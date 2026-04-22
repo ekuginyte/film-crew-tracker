@@ -21,6 +21,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
   const [isNight, setNight] = useState(!!entry.isNight);
   const [perDiem, setPerDiem] = useState(!!entry.perDiem);
   const [shootingOT, setShootingOT] = useState(!!entry.shootingOT);
+  const [shootingOTMinutes, setShootingOTMinutes] = useState<number>(entry.shootingOTMinutes ?? 60);
   const [consecutiveDay, setConsecutiveDay] = useState<number>(entry.consecutiveDay ?? 1);
 
   // Reset state if a different entry becomes active.
@@ -36,6 +37,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
     setNight(!!entry.isNight);
     setPerDiem(!!entry.perDiem);
     setShootingOT(!!entry.shootingOT);
+    setShootingOTMinutes(entry.shootingOTMinutes ?? 60);
     setConsecutiveDay(entry.consecutiveDay ?? 1);
   }, [entry.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -43,7 +45,7 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
     e.preventDefault();
     if (!/^\d{2}:\d{2}$/.test(call) || !/^\d{2}:\d{2}$/.test(wrap)) return;
     if (actualStart && !/^\d{2}:\d{2}$/.test(actualStart)) return;
-    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, consecutiveDay });
+    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, shootingOTMinutes: shootingOT ? shootingOTMinutes : undefined, consecutiveDay });
   };
 
   return (
@@ -98,9 +100,19 @@ export const EntryEditor = ({ entry, onSave, onCancel }: Props) => {
         <input type="checkbox" checked={perDiem} onChange={(e) => setPerDiem(e.target.checked)} className="size-4 accent-[hsl(var(--primary))]" />
         <span className="text-xs text-foreground">Per diem</span>
       </label>
-      <label className="col-span-2 flex items-center gap-2 cursor-pointer select-none bg-obsidian/60 border border-border rounded-md px-3 py-2">
+      <label className="col-span-2 flex flex-wrap items-center gap-2 cursor-pointer select-none bg-obsidian/60 border border-border rounded-md px-3 py-2">
         <input type="checkbox" checked={shootingOT} onChange={(e) => setShootingOT(e.target.checked)} className="size-4 accent-[hsl(var(--ruby))]" />
-        <span className="text-xs text-foreground">Shooting OT (first window after basic at 2×)</span>
+        <span className="text-xs text-foreground flex-1 min-w-[8rem]">Shooting OT (window @ 2×)</span>
+        <span className="flex items-center gap-1.5" onClick={(e) => e.preventDefault()}>
+          <input
+            type="number" min={0} max={480} step={15}
+            value={shootingOTMinutes} disabled={!shootingOT}
+            onChange={(e) => setShootingOTMinutes(Math.max(0, Number(e.target.value) || 0))}
+            onClick={(e) => e.stopPropagation()}
+            className="w-16 bg-obsidian border border-border rounded px-2 py-1 text-xs text-foreground font-mono tabular-nums text-right focus:outline-none focus:border-ruby/60 disabled:opacity-40"
+          />
+          <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-mono">mins</span>
+        </span>
       </label>
 
       <Field label="Day in week (1–7)" className="col-span-2">
