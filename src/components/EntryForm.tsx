@@ -25,7 +25,14 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShooting
   const [location, setLocation] = useState("");
   const [call, setCall] = useState("07:30");
   const [actualStart, setActualStart] = useState("");
-  const [wrap, setWrap] = useState("20:00");
+  const [wrap, setWrap] = useState(() => addHoursToTime("07:30", basicHours));
+
+  // When the call time changes, auto-shift wrap to call + basicHours so the
+  // session defaults to a standard working day. Users can still edit wrap after.
+  const handleCallChange = (next: string) => {
+    setCall(next);
+    if (/^\d{2}:\d{2}$/.test(next)) setWrap(addHoursToTime(next, basicHours));
+  };
   const [mealMinutes, setMeal] = useState(60);
   const [travelMinutes, setTravel] = useState(0);
   const [isNight, setNight] = useState(false);
