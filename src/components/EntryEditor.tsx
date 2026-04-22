@@ -87,7 +87,11 @@ export const EntryEditor = ({ entry, onSave, onCancel, basicHours = 10 }: Props)
       </Field>
 
       <Field label="Call (sheet)">
-        <input value={call} onChange={(e) => setCall(e.target.value)} placeholder="07:30" className={input + " font-mono tabular-nums"} />
+        <input value={call} onChange={(e) => {
+          const next = e.target.value;
+          setCall(next);
+          if (/^\d{2}:\d{2}$/.test(next)) setWrap(addHoursToTime(next, basicHours));
+        }} placeholder="07:30" className={input + " font-mono tabular-nums"} />
       </Field>
       <Field label="Actual start">
         <input value={actualStart} onChange={(e) => setActualStart(e.target.value)} placeholder="06:45" className={input + " font-mono tabular-nums"} />
