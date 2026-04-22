@@ -26,7 +26,8 @@ function buildSegments(entry: DayEntry, rates: RateConfig): { segments: Segment[
   const callMin = toMinutes(entry.call);
   const hasPreCall = !!entry.actualStart && /^\d{2}:\d{2}$/.test(entry.actualStart) && toMinutes(entry.actualStart) < callMin;
   const startMin = hasPreCall ? toMinutes(entry.actualStart!) : callMin;
-  let end = toMinutes(entry.wrap);
+  const endStr = entry.actualWrap && /^\d{2}:\d{2}$/.test(entry.actualWrap) ? entry.actualWrap : entry.wrap;
+  let end = toMinutes(endStr);
   if (end <= startMin) end += 24 * 60;
   const totalMin = Math.max(0, end - startMin);
 
@@ -133,19 +134,22 @@ export const DayTimeline = ({ entry, rates }: Props) => {
   const startLabel = entry.actualStart && entry.actualStart !== entry.call
     ? `${entry.actualStart} start (call ${entry.call})`
     : `${entry.call} call`;
+  const wrapLabel = entry.actualWrap && entry.actualWrap !== entry.wrap
+    ? `${entry.actualWrap} wrap (sched ${entry.wrap})`
+    : `${entry.wrap} wrap`;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
         <span>{startLabel}</span>
         <span>{fmtHours(workedHours(entry))} h worked · {(totalMin / 60).toFixed(2)} h elapsed</span>
-        <span>{entry.wrap} wrap</span>
+        <span>{wrapLabel}</span>
       </div>
 
       <div
         className="relative h-9 w-full rounded-md overflow-hidden border border-border bg-obsidian"
         role="img"
-        aria-label={`Timeline from ${entry.actualStart || entry.call} to ${entry.wrap}`}
+        aria-label={`Timeline from ${entry.actualStart || entry.call} to ${entry.actualWrap || entry.wrap}`}
       >
         {segments.map((s) => {
           const left = (s.startMin / totalMin) * 100;

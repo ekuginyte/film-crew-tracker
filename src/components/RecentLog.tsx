@@ -55,9 +55,12 @@ export const RecentLog = ({ entries, rates, onRemove, onUpdate }: Props) => {
                     {e.isNight && <span className="text-accent text-[10px]">NIGHT</span>}
                   </p>
                   <p className="text-[10px] uppercase tracking-tighter text-muted-foreground font-mono">
-                    {e.actualStart && e.actualStart !== e.call ? `${e.actualStart}→` : ""}{e.call} — {e.wrap} · {fmtHours(b.worked)}h
+                    {e.actualStart && e.actualStart !== e.call ? <span className="text-accent">{e.actualStart}→</span> : ""}
+                    {e.call} — {e.actualWrap && e.actualWrap !== e.wrap ? <span className="text-ruby">{e.actualWrap}</span> : e.wrap}
+                    {" · "}<span className="text-primary">{fmtHours(b.worked)}h</span>
                     {b.preCall > 0 && <span className="text-accent"> · +{fmtHours(b.preCall)} PC</span>}
-                    {b.ot15 + b.ot2 > 0 && <span className="text-primary"> · +{fmtHours(b.ot15 + b.ot2)} OT</span>}
+                    {b.ot15 > 0 && <span className="text-accent"> · +{fmtHours(b.ot15)} OT1.5×</span>}
+                    {b.ot2 > 0 && <span className="text-ruby"> · +{fmtHours(b.ot2)} OT2×</span>}
                     {e.shootingOT && <span className="text-ruby"> · SOT</span>}
                     {e.perDiem && <span className="text-primary"> · PD</span>}
                     {e.consecutiveDay === 6 && <span className="text-accent"> · D6</span>}

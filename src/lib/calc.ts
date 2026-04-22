@@ -21,7 +21,8 @@ export type DayEntry = {
   location?: string;
   call: string;           // scheduled call from call sheet, "07:00"
   actualStart?: string;   // actual on-set start time (e.g. pre-call "06:30")
-  wrap: string;           // "20:30" (may be next-day)
+  wrap: string;           // scheduled wrap "20:30" (may be next-day)
+  actualWrap?: string;    // actual wrap time if it ran past scheduled wrap (drives OT)
   mealMinutes: number;    // unpaid meal break
   travelMinutes: number;
   isNight?: boolean;      // night-shoot flag → night premium
@@ -99,8 +100,9 @@ const toMinutes = (hhmm: string) => {
 export function workedHours(entry: DayEntry): number {
   if (!entry.call || !entry.wrap) return 0;
   const startStr = entry.actualStart && /^\d{2}:\d{2}$/.test(entry.actualStart) ? entry.actualStart : entry.call;
+  const endStr = entry.actualWrap && /^\d{2}:\d{2}$/.test(entry.actualWrap) ? entry.actualWrap : entry.wrap;
   let start = toMinutes(startStr);
-  let end = toMinutes(entry.wrap);
+  let end = toMinutes(endStr);
   if (end <= start) end += 24 * 60; // crossed midnight
   const worked = end - start - (entry.mealMinutes || 0);
   return Math.max(0, worked / 60);
