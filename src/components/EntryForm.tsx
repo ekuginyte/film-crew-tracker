@@ -4,17 +4,35 @@ import { toast } from "@/hooks/use-toast";
 import type { DayEntry, DayType } from "@/lib/calc";
 import { DAY_TYPES, DAY_TYPE_LABELS } from "@/lib/calc";
 
-type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void; defaultShootingOT?: boolean; defaultShootingOTMinutes?: number };
+type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void; defaultShootingOT?: boolean; defaultShootingOTMinutes?: number; basicHours?: number };
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShootingOTMinutes = 60 }: Props) => {
+// Add hours (decimal) to a HH:MM time string, wrapping at 24h.
+const addHoursToTime = (hhmm: string, hours: number): string => {
+  if (!/^\d{2}:\d{2}$/.test(hhmm)) return hhmm;
+  const [h, m] = hhmm.split(":").map(Number);
+  const total = h * 60 + m + Math.round(hours * 60);
+  const norm = ((total % (24 * 60)) + 24 * 60) % (24 * 60);
+  const hh = String(Math.floor(norm / 60)).padStart(2, "0");
+  const mm = String(norm % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
+};
+
+export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShootingOTMinutes = 60, basicHours = 10 }: Props) => {
   const [date, setDate] = useState(today());
   const [dayType, setDayType] = useState<DayType>("shoot");
   const [location, setLocation] = useState("");
   const [call, setCall] = useState("07:30");
   const [actualStart, setActualStart] = useState("");
-  const [wrap, setWrap] = useState("20:00");
+  const [wrap, setWrap] = useState(() => addHoursToTime("07:30", basicHours));
+
+  // When the call time changes, auto-shift wrap to call + basicHours so the
+  // session defaults to a standard working day. Users can still edit wrap after.
+  const handleCallChange = (next: string) => {
+    setCall(next);
+    if (/^\d{2}:\d{2}$/.test(next)) setWrap(addHoursToTime(next, basicHours));
+  };
   const [mealMinutes, setMeal] = useState(60);
   const [travelMinutes, setTravel] = useState(0);
   const [isNight, setNight] = useState(false);
@@ -72,9 +90,9 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShooting
       </Field>
 
       <Field label="Call Time" className="col-span-2 md:col-span-1">
-        <input value={call} onChange={(e) => setCall(e.target.value)} placeholder="07:30"
+        <input value={call} onChange={(e) => handleCallChange(e.target.value)} placeholder="07:30"
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-accent/60" />
-        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">From call sheet</p>
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">From call sheet · auto-sets wrap +{basicHours}h</p>
       </Field>
       <Field label="Actual Start" className="col-span-2 md:col-span-1">
         <input value={actualStart} onChange={(e) => setActualStart(e.target.value)} placeholder="06:45"
@@ -132,7 +150,7 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShooting
       <div className="col-span-2 flex gap-3 pt-2">
         <Button type="submit" variant="volt" size="xl" className="flex-1">CAPTURE ENTRY</Button>
         <Button type="reset" variant="outlineGlass" size="xl"
-          onClick={() => { setLocation(""); setCall("07:30"); setActualStart(""); setWrap("20:00"); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); setShootingOT(defaultShootingOT); setShootingOTMinutes(defaultShootingOTMinutes); }}>
+          onClick={() => { setLocation(""); setCall("07:30"); setActualStart(""); setWrap(addHoursToTime("07:30", basicHours)); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); setShootingOT(defaultShootingOT); setShootingOTMinutes(defaultShootingOTMinutes); }}>
           Reset
         </Button>
       </div>

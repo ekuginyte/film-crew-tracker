@@ -107,6 +107,7 @@ export const RecentLog = ({ entries, rates, onRemove, onUpdate }: Props) => {
                     entry={e}
                     onSave={(patch) => { onUpdate(e.id, patch); setEditId(null); }}
                     onCancel={() => setEditId(null)}
+                    basicHours={rates.basicHours}
                   />
                 )}
               </div>
