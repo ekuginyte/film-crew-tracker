@@ -27,6 +27,7 @@ export const EntryEditor = ({ entry, onSave, onCancel, basicHours = 10 }: Props)
   const [call, setCall] = useState(entry.call);
   const [actualStart, setActualStart] = useState(entry.actualStart ?? "");
   const [wrap, setWrap] = useState(entry.wrap);
+  const [actualWrap, setActualWrap] = useState(entry.actualWrap ?? "");
   const [mealMinutes, setMeal] = useState(entry.mealMinutes);
   const [travelMinutes, setTravel] = useState(entry.travelMinutes);
   const [isNight, setNight] = useState(!!entry.isNight);
@@ -43,6 +44,7 @@ export const EntryEditor = ({ entry, onSave, onCancel, basicHours = 10 }: Props)
     setCall(entry.call);
     setActualStart(entry.actualStart ?? "");
     setWrap(entry.wrap);
+    setActualWrap(entry.actualWrap ?? "");
     setMeal(entry.mealMinutes);
     setTravel(entry.travelMinutes);
     setNight(!!entry.isNight);
@@ -56,7 +58,8 @@ export const EntryEditor = ({ entry, onSave, onCancel, basicHours = 10 }: Props)
     e.preventDefault();
     if (!/^\d{2}:\d{2}$/.test(call) || !/^\d{2}:\d{2}$/.test(wrap)) return;
     if (actualStart && !/^\d{2}:\d{2}$/.test(actualStart)) return;
-    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, shootingOTMinutes: shootingOT ? shootingOTMinutes : undefined, consecutiveDay });
+    if (actualWrap && !/^\d{2}:\d{2}$/.test(actualWrap)) return;
+    onSave({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, actualWrap: actualWrap || undefined, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, shootingOTMinutes: shootingOT ? shootingOTMinutes : undefined, consecutiveDay });
   };
 
   return (
@@ -96,8 +99,11 @@ export const EntryEditor = ({ entry, onSave, onCancel, basicHours = 10 }: Props)
       <Field label="Actual start">
         <input value={actualStart} onChange={(e) => setActualStart(e.target.value)} placeholder="06:45" className={input + " font-mono tabular-nums"} />
       </Field>
-      <Field label="Wrap" className="col-span-2">
+      <Field label="Wrap (sheet)">
         <input value={wrap} onChange={(e) => setWrap(e.target.value)} placeholder="20:00" className={input + " font-mono tabular-nums"} />
+      </Field>
+      <Field label="Actual wrap">
+        <input value={actualWrap} onChange={(e) => setActualWrap(e.target.value)} placeholder="21:30" className={input + " font-mono tabular-nums"} />
       </Field>
 
       <Field label="Meal (mins)">

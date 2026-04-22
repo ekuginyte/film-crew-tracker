@@ -26,6 +26,7 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShooting
   const [call, setCall] = useState("07:30");
   const [actualStart, setActualStart] = useState("");
   const [wrap, setWrap] = useState(() => addHoursToTime("07:30", basicHours));
+  const [actualWrap, setActualWrap] = useState("");
 
   // When the call time changes, auto-shift wrap to call + basicHours so the
   // session defaults to a standard working day. Users can still edit wrap after.
@@ -50,7 +51,11 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShooting
       toast({ title: "Invalid actual start", description: "Use HH:MM format or leave blank." });
       return;
     }
-    onSubmit({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, shootingOTMinutes: shootingOT ? shootingOTMinutes : undefined });
+    if (actualWrap && !/^\d{2}:\d{2}$/.test(actualWrap)) {
+      toast({ title: "Invalid actual wrap", description: "Use HH:MM format or leave blank." });
+      return;
+    }
+    onSubmit({ date, dayType, location: location.trim(), call, actualStart: actualStart || undefined, wrap, actualWrap: actualWrap || undefined, mealMinutes, travelMinutes, isNight, perDiem, shootingOT, shootingOTMinutes: shootingOT ? shootingOTMinutes : undefined });
     toast({ title: "Entry captured", description: `${DAY_TYPE_LABELS[dayType]} · ${date} · ${call}–${wrap}` });
   };
 
@@ -102,6 +107,12 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShooting
       <Field label="Wrap Time" className="col-span-2 md:col-span-1">
         <input value={wrap} onChange={(e) => setWrap(e.target.value)} placeholder="20:45"
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-ruby/60" />
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">Scheduled wrap from call sheet</p>
+      </Field>
+      <Field label="Actual Wrap" className="col-span-2 md:col-span-1">
+        <input value={actualWrap} onChange={(e) => setActualWrap(e.target.value)} placeholder="21:30"
+          className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-ruby/60" />
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">If ran late (else blank) — drives OT</p>
       </Field>
 
       <Field label="Meal Break (mins)">
@@ -150,7 +161,7 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShooting
       <div className="col-span-2 flex gap-3 pt-2">
         <Button type="submit" variant="volt" size="xl" className="flex-1">CAPTURE ENTRY</Button>
         <Button type="reset" variant="outlineGlass" size="xl"
-          onClick={() => { setLocation(""); setCall("07:30"); setActualStart(""); setWrap(addHoursToTime("07:30", basicHours)); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); setShootingOT(defaultShootingOT); setShootingOTMinutes(defaultShootingOTMinutes); }}>
+          onClick={() => { setLocation(""); setCall("07:30"); setActualStart(""); setWrap(addHoursToTime("07:30", basicHours)); setActualWrap(""); setMeal(60); setTravel(0); setNight(false); setPerDiem(false); setShootingOT(defaultShootingOT); setShootingOTMinutes(defaultShootingOTMinutes); }}>
           Reset
         </Button>
       </div>
