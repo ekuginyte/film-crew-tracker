@@ -4,11 +4,22 @@ import { toast } from "@/hooks/use-toast";
 import type { DayEntry, DayType } from "@/lib/calc";
 import { DAY_TYPES, DAY_TYPE_LABELS } from "@/lib/calc";
 
-type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void; defaultShootingOT?: boolean; defaultShootingOTMinutes?: number };
+type Props = { onSubmit: (entry: Omit<DayEntry, "id">) => void; defaultShootingOT?: boolean; defaultShootingOTMinutes?: number; basicHours?: number };
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShootingOTMinutes = 60 }: Props) => {
+// Add hours (decimal) to a HH:MM time string, wrapping at 24h.
+const addHoursToTime = (hhmm: string, hours: number): string => {
+  if (!/^\d{2}:\d{2}$/.test(hhmm)) return hhmm;
+  const [h, m] = hhmm.split(":").map(Number);
+  const total = h * 60 + m + Math.round(hours * 60);
+  const norm = ((total % (24 * 60)) + 24 * 60) % (24 * 60);
+  const hh = String(Math.floor(norm / 60)).padStart(2, "0");
+  const mm = String(norm % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
+};
+
+export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShootingOTMinutes = 60, basicHours = 10 }: Props) => {
   const [date, setDate] = useState(today());
   const [dayType, setDayType] = useState<DayType>("shoot");
   const [location, setLocation] = useState("");
