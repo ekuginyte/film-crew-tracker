@@ -91,6 +91,7 @@ const Index = () => {
                       onSubmit={addEntry}
                       defaultShootingOT={!!rates.shootingOTDefault}
                       defaultShootingOTMinutes={rates.shootingOTMinutes}
+                      basicHours={rates.basicHours}
                     />
                   </div>
                 </div>
