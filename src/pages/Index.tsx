@@ -72,24 +72,29 @@ const Index = () => {
         <main className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <section className="lg:col-span-7 space-y-8">
             {view === "capture" ? (
-              <>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-medium text-foreground">Session Capture</h2>
-                  <span className="text-xs font-mono text-muted-foreground bg-carbon px-3 py-1 rounded-full border border-border">
-                    {entries.length} {entries.length === 1 ? "DAY" : "DAYS"} LOGGED
-                  </span>
-                </div>
-
-                <div className="bg-carbon rounded-2xl p-8 border border-border shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 rounded-full" aria-hidden />
-                  <EntryForm onSubmit={addEntry} defaultShootingOT={!!rates.shootingOTDefault} />
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">Recent Captured Slates</h3>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div className="space-y-4 order-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">Recent Captured Slates</h3>
+                    <span className="text-[10px] font-mono text-muted-foreground bg-carbon px-2 py-0.5 rounded-full border border-border">
+                      {entries.length} {entries.length === 1 ? "DAY" : "DAYS"}
+                    </span>
+                  </div>
                   <RecentLog entries={entries} rates={rates} onRemove={removeEntry} onUpdate={updateEntry} />
                 </div>
-              </>
+
+                <div className="space-y-4 order-2">
+                  <h2 className="text-lg font-medium text-foreground">Session Capture</h2>
+                  <div className="bg-carbon rounded-2xl p-6 border border-border shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -mr-16 -mt-16 rounded-full" aria-hidden />
+                    <EntryForm
+                      onSubmit={addEntry}
+                      defaultShootingOT={!!rates.shootingOTDefault}
+                      defaultShootingOTMinutes={rates.shootingOTMinutes}
+                    />
+                  </div>
+                </div>
+              </div>
             ) : (
               <>
                 <div className="flex items-center justify-between gap-3 flex-wrap">

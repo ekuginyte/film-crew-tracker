@@ -9,27 +9,27 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* OLED Studio Capture — dark by default */
-    --background: 0 0% 2%;
-    --foreground: 0 0% 92%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
 
-    --obsidian: 0 0% 2%;
-    --carbon: 0 0% 7%;
-    --slate-glass: 0 0% 10%;
+    --obsidian: 0 0% 8%;
+    --carbon: 0 0% 14%;
+    --slate-glass: 0 0% 18%;
 
-    --card: 0 0% 7%;
+    --card: 0 0% 14%;
     --card-foreground: 0 0% 92%;
 
-    --popover: 0 0% 7%;
+    --popover: 0 0% 14%;
     --popover-foreground: 0 0% 92%;
 
     --primary: 73 100% 72%;        /* film-volt #E2FF6F */
     --primary-foreground: 0 0% 2%;
 
-    --secondary: 0 0% 12%;
+    --secondary: 0 0% 20%;
     --secondary-foreground: 0 0% 92%;
 
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 50%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 62%;
 
     --accent: 184 100% 50%;        /* film-cyan #00F5FF */
     --accent-foreground: 0 0% 2%;
@@ -40,8 +40,8 @@ All colors MUST be HSL.
     --destructive: 348 100% 59%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
+    --border: 0 0% 24%;
+    --input: 0 0% 24%;
     --ring: 73 100% 72%;
 
     --radius: 0.75rem;

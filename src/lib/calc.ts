@@ -1,7 +1,7 @@
 // Hours & charge calculations for UK film crew (BECTU-style defaults).
 // All times in "HH:mm". Wrap may cross midnight (next day).
 
-export const DAY_TYPES = ["shoot", "travel", "prep", "rig", "rehearsal", "hold"] as const;
+export const DAY_TYPES = ["shoot", "travel", "prep", "rig", "rehearsal", "hold", "rest"] as const;
 export type DayType = (typeof DAY_TYPES)[number];
 
 export const DAY_TYPE_LABELS: Record<DayType, string> = {
@@ -11,6 +11,7 @@ export const DAY_TYPE_LABELS: Record<DayType, string> = {
   rig: "Rig",
   rehearsal: "Rehearsal",
   hold: "Hold",
+  rest: "Rest",
 };
 
 export type DayEntry = {
@@ -25,7 +26,8 @@ export type DayEntry = {
   travelMinutes: number;
   isNight?: boolean;      // night-shoot flag → night premium
   perDiem?: boolean;      // claim per-diem for this day
-  shootingOT?: boolean;   // when true, first `shootingOTMinutes` after basic count at 2× then 1.5×; otherwise all OT is 1.5×
+  shootingOT?: boolean;   // when true, first `shootingOTMinutes` (per-entry override or rates default) after basic count at 2× then 1.5×; otherwise all OT is 1.5×
+  shootingOTMinutes?: number; // per-entry override of how many minutes count at 2× when shootingOT is on
   consecutiveDay?: number; // 1-7 within the working week (6th/7th trigger premiums)
   notes?: string;
 };
@@ -41,6 +43,7 @@ export const DEFAULT_DAY_TYPE_RATES: DayTypeRates = {
   rig: 1,
   rehearsal: 0.75,
   hold: 0.5,
+  rest: 0,
 };
 
 export type RateConfig = {
@@ -139,7 +142,11 @@ export function breakdown(entry: DayEntry, rates: RateConfig): DayBreakdown {
   const basic = Math.min(worked, rates.basicHours);
   const overtime = Math.max(0, worked - rates.basicHours);
   // Shooting OT only applies when the entry opts in. Otherwise all OT is 1.5×.
-  const shootingOTHours = entry.shootingOT ? Math.max(0, (rates.shootingOTMinutes || 0)) / 60 : 0;
+  // Per-entry minutes override the project-default minutes when provided.
+  const sotMinutes = entry.shootingOT
+    ? Math.max(0, entry.shootingOTMinutes ?? rates.shootingOTMinutes ?? 0)
+    : 0;
+  const shootingOTHours = sotMinutes / 60;
   const ot2 = Math.min(overtime, shootingOTHours);
   const ot15 = Math.max(0, overtime - shootingOTHours);
   const travelHours = (entry.travelMinutes || 0) / 60;
