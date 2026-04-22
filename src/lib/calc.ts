@@ -1,7 +1,7 @@
 // Hours & charge calculations for UK film crew (BECTU-style defaults).
 // All times in "HH:mm". Wrap may cross midnight (next day).
 
-export const DAY_TYPES = ["shoot", "travel", "prep", "rig", "rehearsal", "hold"] as const;
+export const DAY_TYPES = ["shoot", "travel", "prep", "rig", "rehearsal", "hold", "rest"] as const;
 export type DayType = (typeof DAY_TYPES)[number];
 
 export const DAY_TYPE_LABELS: Record<DayType, string> = {
@@ -11,6 +11,7 @@ export const DAY_TYPE_LABELS: Record<DayType, string> = {
   rig: "Rig",
   rehearsal: "Rehearsal",
   hold: "Hold",
+  rest: "Rest",
 };
 
 export type DayEntry = {
@@ -41,6 +42,7 @@ export const DEFAULT_DAY_TYPE_RATES: DayTypeRates = {
   rig: 1,
   rehearsal: 0.75,
   hold: 0.5,
+  rest: 0,
 };
 
 export type RateConfig = {

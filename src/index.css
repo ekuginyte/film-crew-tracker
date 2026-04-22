@@ -9,8 +9,8 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* OLED Studio Capture — dark by default */
-    --background: 0 0% 2%;
-    --foreground: 0 0% 92%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
 
     --obsidian: 0 0% 8%;
     --carbon: 0 0% 14%;
