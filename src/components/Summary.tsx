@@ -72,7 +72,7 @@ export const Summary = ({ entries, rates, project }: Props) => {
             <Button variant="cyan" size="xl"
               disabled={entries.length === 0}
               onClick={() => exportInvoiceCSV(entries, rates, project)}>
-              Generate Crew Invoice
+              Generate Invoice
             </Button>
           </div>
         </div>
