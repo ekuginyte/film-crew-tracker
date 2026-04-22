@@ -69,8 +69,8 @@ const Index = () => {
           </div>
         </header>
 
-        <main className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          <section className="lg:col-span-7 space-y-8">
+        <main className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <section className="lg:col-span-9 space-y-8">
             {view === "capture" ? (
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 <div className="space-y-4 order-1">
@@ -117,7 +117,7 @@ const Index = () => {
             )}
           </section>
 
-          <aside className="lg:col-span-5 space-y-6">
+          <aside className="lg:col-span-3 space-y-6">
             {showRates ? (
               <RatesPanel rates={rates} onChange={setRates} project={project} onProject={setProject} />
             ) : (
