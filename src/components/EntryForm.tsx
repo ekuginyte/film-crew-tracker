@@ -90,9 +90,9 @@ export const EntryForm = ({ onSubmit, defaultShootingOT = false, defaultShooting
       </Field>
 
       <Field label="Call Time" className="col-span-2 md:col-span-1">
-        <input value={call} onChange={(e) => setCall(e.target.value)} placeholder="07:30"
+        <input value={call} onChange={(e) => handleCallChange(e.target.value)} placeholder="07:30"
           className="w-full bg-obsidian border border-border rounded-lg px-4 py-4 text-2xl text-foreground font-mono tabular-nums focus:outline-none focus:border-accent/60" />
-        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">From call sheet</p>
+        <p className="text-[9px] uppercase tracking-widest text-muted-foreground/70 font-mono">From call sheet · auto-sets wrap +{basicHours}h</p>
       </Field>
       <Field label="Actual Start" className="col-span-2 md:col-span-1">
         <input value={actualStart} onChange={(e) => setActualStart(e.target.value)} placeholder="06:45"
