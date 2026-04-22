@@ -36,21 +36,14 @@ export const RatesPanel = ({ rates, onChange, project, onProject }: Props) => {
             <NumField label="Day rate £" value={rates.dayRate} onChange={(v) => set("dayRate", v)} step={5} />
             <NumField label="Hourly £" value={rates.hourlyRate} onChange={(v) => set("hourlyRate", v)} step={0.5} />
             <NumField label="Basic hrs/day" value={rates.basicHours} onChange={(v) => set("basicHours", v)} />
-            <NumField label="Shooting OT mins (2×)" value={rates.shootingOTMinutes} onChange={(v) => set("shootingOTMinutes", v)} step={15} />
             <NumField label="Pre-call ×" value={rates.preCallRate} onChange={(v) => set("preCallRate", v)} step={0.1} />
             <NumField label="Night premium £" value={rates.nightPremium} onChange={(v) => set("nightPremium", v)} />
             <NumField label="Per diem £" value={rates.perDiem} onChange={(v) => set("perDiem", v)} step={1} />
             <NumField label="VAT rate" value={rates.vatRate} onChange={(v) => set("vatRate", v)} step={0.01} />
             <NumField label="Kit £/day" value={rates.kitRentalPerDay || 0} onChange={(v) => set("kitRentalPerDay", v)} />
           </div>
-          <label className="flex items-center gap-3 cursor-pointer select-none bg-obsidian/60 border border-border rounded-lg px-3 py-2">
-            <input type="checkbox" checked={!!rates.shootingOTDefault}
-              onChange={(e) => set("shootingOTDefault", e.target.checked)}
-              className="size-4 accent-[hsl(var(--ruby))]" />
-            <span className="text-xs text-foreground">Default new entries to <span className="text-ruby">Shooting OT</span></span>
-          </label>
           <p className="text-[10px] text-muted-foreground font-mono leading-relaxed">
-            Shooting OT is opt-in per day. When ticked on an entry, the first <span className="text-ruby">{rates.shootingOTMinutes}m</span> after basic are paid at 2×; any further OT reverts to 1.5×. When unticked, all OT after basic is 1.5×.
+            Shooting OT is set per entry in the Session Capture. When ticked, those minutes after basic are paid at 2×; further OT reverts to 1.5×.
           </p>
         </>
       )}
